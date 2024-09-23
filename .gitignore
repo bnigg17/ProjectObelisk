@@ -50,3 +50,20 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# ZoneIdentifier files (Windows)
+*Zone.Identifier
+
+# STM32CubeIDE specific files
+.cproject
+.mxproject
+.project
+.settings/
+
+# Debug and build output
+Debug/
+*.bin
+*.ld
+
+# IDE Launch configurations
+*.launch

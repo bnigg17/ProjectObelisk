@@ -73,6 +73,17 @@ void setServoAngle(uint32_t angle){
 	TIM1->CCR2 = pulse;
 }
 
+/* CANNOT EXCEED 80 CHARACTERS, only fits default size PuTTY window*/
+void print(const uint8_t * data){
+	uint8_t output[80] = {' ', ' ',' ',' ',' ',' ',' ',' ',' ',' ',' ', ' ',' ',' ',' ',' ',' ',' ',' ',' ',' ', ' ',' ',' ',' ',' ',' ',' ',' ',' ',' ', ' ',' ',' ',' ',' ',' ',' ',' ',' ',' ', ' ',' ',' ',' ',' ',' ',' ',' ',' ',' ', ' ',' ',' ',' ',' ',' ',' ',' ',' ',' ', ' ',' ',' ',' ',' ',' ',' ',' ',' ',' ', ' ',' ',' ',' ',' ',' ',' ',' ',' '};
+	int i = 0;
+	while(data[i] != '\0'){
+		output[i] = data[i];
+		i++;
+	}
+	(void)HAL_UART_Transmit(&huart4, output, 80, 0xFFFF);
+}
+
 /* USER CODE END 0 */
 
 /**
@@ -117,8 +128,11 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  const uint8_t * data = (uint8_t *)"Hello World\n";
-  (void)HAL_UART_Transmit(&huart4, data, 13, 0xFFFF);
+//  const uint8_t * data = (uint8_t *)"Hello World                                                                       \n";
+//  (void)HAL_UART_Transmit(&huart4, data, 80, 0xFFFF);
+//  print("Hello World                                                                       \n");
+//  print("Hello World                                                                                                       ");
+  print("Hello World");
 //  static uint8_t rxBuf[4];
 //  //do{
 //	  HAL_StatusTypeDef ret = HAL_UART_Receive(&huart4, rxBuf, 4, 0xFFFF);

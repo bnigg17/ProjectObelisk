@@ -99,8 +99,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);
   /* USER CODE END 2 */
-  int angle = 0;
-  int clockwise = 0;
+
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)

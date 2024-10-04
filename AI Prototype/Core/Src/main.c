@@ -64,6 +64,9 @@ static void MX_TIM3_Init(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
+#define READ_DATA 0x43
+#define WRITE_DATA 0x42
+#define COM7 0x12
 /* USER CODE BEGIN 0 */
 void setServoAngle(uint32_t angle){
 	if(angle > 180) angle = 180;
@@ -82,6 +85,29 @@ void print(const uint8_t * data){
 		i++;
 	}
 	(void)HAL_UART_Transmit(&huart4, output, 80, 0xFFFF);
+}
+
+void write_to_camera(const uint8_t * SubAddress, const uint8_t * data){
+	uint8_t buffer[3] = {WRITE_DATA, SubAddress, data};
+	//TODO: complete the write to camera transmission function, need to refer to I2C exercise on how writing worked
+	return;
+}
+
+void read_from_camera(const uint8_t * SubAddress) {
+	uint8_t buffer[2] = {READ_DATA, SubAddress};
+	//TODO: again should refer to I2C exercise about how buffer scanning works
+	return;
+}
+
+void camera_init(){
+	//First reset and turn PWDN high so we aren't in SUSPEND mode
+	HAL_GPIO_WritePin(GPIOA, CAM_RST_Pin, GPIO_PIN_SET);
+	HAL_GPIO_WritePin(GPIOA, CAM_RST_Pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(PWDN_GPIO_Port, PWDN_Pin, GPIO_PIN_SET);
+	//Send transmission to initialize RGB mode
+	uint8_t RGB_mode = 0x02;
+	write_to_camera(COM7, RGB_mode);
+	return;
 }
 
 /* USER CODE END 0 */
@@ -130,9 +156,8 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 //  const uint8_t * data = (uint8_t *)"Hello World                                                                       \n";
 //  (void)HAL_UART_Transmit(&huart4, data, 80, 0xFFFF);
-//  print("Hello World                                                                       \n");
-//  print("Hello World                                                                                                       ");
   print("Hello World");
+  camera_init();
 //  static uint8_t rxBuf[4];
 //  //do{
 //	  HAL_StatusTypeDef ret = HAL_UART_Receive(&huart4, rxBuf, 4, 0xFFFF);
@@ -153,7 +178,7 @@ int main(void)
 	  else{
 		  angle++;
 	  }
-	  setServoAngle(angle);
+//	  setServoAngle(angle);
 	  HAL_Delay(2);
 	  if(angle >= 180 || angle < 0){
 		  clockwise = (clockwise) ? 0 : 1;
@@ -451,6 +476,9 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1|CAM_RST_Pin, GPIO_PIN_RESET);
 
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(PWDN_GPIO_Port, PWDN_Pin, GPIO_PIN_RESET);
+
   /*Configure GPIO pin : HSYNC_Pin */
   GPIO_InitStruct.Pin = HSYNC_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
@@ -478,11 +506,12 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : PWNN_Pin */
-  GPIO_InitStruct.Pin = PWNN_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  /*Configure GPIO pin : PWDN_Pin */
+  GPIO_InitStruct.Pin = PWDN_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(PWNN_GPIO_Port, &GPIO_InitStruct);
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(PWDN_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : D1_Pin D5_Pin D3_Pin */
   GPIO_InitStruct.Pin = D1_Pin|D5_Pin|D3_Pin;

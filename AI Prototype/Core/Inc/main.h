@@ -79,8 +79,8 @@ void Error_Handler(void);
 #define PCLK_GPIO_Port GPIOA
 #define CAM_RST_Pin GPIO_PIN_10
 #define CAM_RST_GPIO_Port GPIOA
-#define PWNN_Pin GPIO_PIN_3
-#define PWNN_GPIO_Port GPIOD
+#define PWDN_Pin GPIO_PIN_3
+#define PWDN_GPIO_Port GPIOD
 #define D1_Pin GPIO_PIN_3
 #define D1_GPIO_Port GPIOB
 #define D5_Pin GPIO_PIN_4

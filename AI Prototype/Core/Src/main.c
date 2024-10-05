@@ -18,6 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "../../Drivers/Custom/OV7670.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -87,28 +88,7 @@ void print(const uint8_t * data){
 	(void)HAL_UART_Transmit(&huart4, output, 80, 0xFFFF);
 }
 
-void write_to_camera(const uint8_t * SubAddress, const uint8_t * data){
-	uint8_t buffer[3] = {WRITE_DATA, SubAddress, data};
-	//TODO: complete the write to camera transmission function, need to refer to I2C exercise on how writing worked
-	return;
-}
 
-void read_from_camera(const uint8_t * SubAddress) {
-	uint8_t buffer[2] = {READ_DATA, SubAddress};
-	//TODO: again should refer to I2C exercise about how buffer scanning works
-	return;
-}
-
-void camera_init(){
-	//First reset and turn PWDN high so we aren't in SUSPEND mode
-	HAL_GPIO_WritePin(GPIOA, CAM_RST_Pin, GPIO_PIN_SET);
-	HAL_GPIO_WritePin(GPIOA, CAM_RST_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(PWDN_GPIO_Port, PWDN_Pin, GPIO_PIN_SET);
-	//Send transmission to initialize RGB mode
-	uint8_t RGB_mode = 0x02;
-	write_to_camera(COM7, RGB_mode);
-	return;
-}
 
 /* USER CODE END 0 */
 
@@ -157,7 +137,7 @@ int main(void)
 //  const uint8_t * data = (uint8_t *)"Hello World                                                                       \n";
 //  (void)HAL_UART_Transmit(&huart4, data, 80, 0xFFFF);
   print("Hello World");
-  camera_init();
+  camera_init(&hi2c1);
 //  static uint8_t rxBuf[4];
 //  //do{
 //	  HAL_StatusTypeDef ret = HAL_UART_Receive(&huart4, rxBuf, 4, 0xFFFF);

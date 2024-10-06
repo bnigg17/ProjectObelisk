@@ -89,7 +89,6 @@ void print(const uint8_t * data){
 }
 
 
-
 /* USER CODE END 0 */
 
 /**
@@ -138,6 +137,7 @@ int main(void)
 //  (void)HAL_UART_Transmit(&huart4, data, 80, 0xFFFF);
   print("Hello World");
   camera_init(&hi2c1);
+  void read_image();
 //  static uint8_t rxBuf[4];
 //  //do{
 //	  HAL_StatusTypeDef ret = HAL_UART_Receive(&huart4, rxBuf, 4, 0xFFFF);
@@ -151,19 +151,20 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-	  HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_1);
-	  if(clockwise){
-		  angle--;
-	  }
-	  else{
-		  angle++;
-	  }
-//	  setServoAngle(angle);
-	  HAL_Delay(2);
-	  if(angle >= 180 || angle < 0){
-		  clockwise = (clockwise) ? 0 : 1;
-	  }
-
+//	  HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_1);
+//	  if(clockwise){
+//		  angle--;
+//	  }
+//	  else{
+//		  angle++;
+//	  }
+////	  setServoAngle(angle);
+//	  HAL_Delay(2);
+//	  if(angle >= 180 || angle < 0){
+//		  clockwise = (clockwise) ? 0 : 1;
+//	  }
+	  camera_init(&hi2c1);
+	  print("thing");
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */

@@ -5,6 +5,7 @@
  *      Author: bnigg2
  */
 #include "../../Core/Inc/main.h"
+#include "putty.h"
 
 /*
  * Can communicate with either I2C or SCCB. Difference is I2C needs pull up resistors for 1's and 0's only. SCCB allow for impeaded state
@@ -18,6 +19,7 @@
 #define COM7 0x12	// 0 - Normal operation, Resets all regs and resets bit to 0 (i.e normal operation mode)
 #define COM2 0x09	// Standby Mode Enable - Active High
 #define COM15 0x40 //RGB setting
+#define COM6 0x0F //PID register for reading test
 
 // File variable needed to map camera and i2c
 I2C_HandleTypeDef * i2c_inst;
@@ -47,10 +49,28 @@ uint8_t write_byte_to_camera(uint8_t reg, const uint8_t * data){
 	return 0;	// Success
 }
 
-void read_from_camera(const uint8_t * SubAddress) {
-	uint8_t buffer[2] = {READ_ADDR, SubAddress};
-	//TODO: again should refer to I2C exercise about how buffer scanning works
-	return;
+uint8_t read_from_camera(uint8_t reg, uint8_t * data) {
+	println("Reading form camera...");
+	uint8_t rxbuff[1] = {reg};
+	printint(rxbuff[0]);
+	HAL_StatusTypeDef ret = HAL_I2C_Master_Transmit(i2c_inst, READ_ADDR, rxbuff, 1, HAL_MAX_DELAY);
+//	 HAL_StatusTypeDef read_confirmation = HAL_I2C_Master_Receive(i2c_inst, READ_ADDR, rxbuff, 1, HAL_MAX_DELAY);
+//	if(ret == HAL_OK){
+//		read_confirmation = HAL_I2C_Master_Receive(i2c_inst, READ_ADDR, data, 1, HAL_MAX_DELAY);
+//		println("HAL_OK for transmission for read from camera");
+//	}
+//	if(ret == HAL_ERROR){
+//		println("HAL_ERROR for transmission for read from camera");
+//	}
+	if(ret == HAL_OK){
+			println("OVO Read SUCCESS");
+			return 0;
+	}
+	if(ret == HAL_ERROR){
+		println("OVO Read Fail");
+		return -1;
+	}
+	return 0;
 }
 
 
@@ -133,11 +153,35 @@ void camera_init(I2C_HandleTypeDef *hi2c){
 	HAL_GPIO_WritePin(GPIOA, CAM_RST_Pin, GPIO_PIN_RESET);
 	HAL_GPIO_WritePin(PWDN_GPIO_Port, PWDN_Pin, GPIO_PIN_RESET);
 	//Send transmission to initialize RGB 565 mode
+	uint8_t reset_signal = 0x80;
 	uint8_t RGB_mode_COM7 = 0x04;
 	uint8_t RGB_mode_COM15 = 0x10;
-	write_byte_to_camera(COM7, &RGB_mode_COM7);
-	write_byte_to_camera(COM15, &RGB_mode_COM15);
-	print("thing");
+	uint8_t reset = write_byte_to_camera(COM7, &reset_signal);
+	HAL_Delay(1);
+	uint8_t rgb_mode = write_byte_to_camera(COM7, &RGB_mode_COM7);
+	uint8_t rgb_mode_2 = write_byte_to_camera(COM15, &RGB_mode_COM15);
+	if(rgb_mode == -1 || rgb_mode_2 == -1 || reset == -1){
+		println("failed RGB mode initialization");
+	}
+	println("Camera Initialized");
 	return;
+}
+
+uint8_t read_test(){
+	println("manual print test:");
+	uint8_t test = 0xBB;
+	printint(test);
+	uint8_t data = 0xFF;
+	read_from_camera(COM6, &data);
+	println("data:");
+	printint(data);
+	return data;
+//	if(data == 0x76){
+//		println("success");
+//	}
+//	else{
+//		println("fail");
+//	}
+//	return;
 }
 

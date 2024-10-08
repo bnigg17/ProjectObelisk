@@ -125,9 +125,11 @@ int main(void)
   MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
+  init_putty(&huart4);
 
   int angle = 0;
   int clockwise = 0;
+
 
   /* USER CODE END 2 */
 
@@ -135,9 +137,9 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 //  const uint8_t * data = (uint8_t *)"Hello World                                                                       \n";
 //  (void)HAL_UART_Transmit(&huart4, data, 80, 0xFFFF);
-  print("Hello World");
   camera_init(&hi2c1);
-  void read_image();
+  uint8_t value = read_test();
+//  read_image();
 //  static uint8_t rxBuf[4];
 //  //do{
 //	  HAL_StatusTypeDef ret = HAL_UART_Receive(&huart4, rxBuf, 4, 0xFFFF);
@@ -163,8 +165,8 @@ int main(void)
 //	  if(angle >= 180 || angle < 0){
 //		  clockwise = (clockwise) ? 0 : 1;
 //	  }
-	  camera_init(&hi2c1);
-	  print("thing");
+//	  camera_init(&hi2c1);
+//	  print("thing");
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */

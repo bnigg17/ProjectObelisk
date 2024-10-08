@@ -16,11 +16,11 @@ void init_putty(UART_HandleTypeDef * huart){
     huart_inst = huart;
 }
 
-void putty_println(const char * string){
+void println(const char * string){
     uint8_t txBuff[CHAR_COLS];
     int eos_flag = 0;
     for(int i = 0; i < CHAR_COLS; i++){
-        if(string[i] == '/0'){
+        if(string[i] == '\0'){
             eos_flag = 1;
         }
         if(!eos_flag){
@@ -31,6 +31,19 @@ void putty_println(const char * string){
         }
     }
     (void)HAL_UART_Transmit(huart_inst, txBuff, CHAR_COLS, 0xFFFF);
+}
+
+void printint(const uint8_t data){
+    // Each byte can be represented in 2 hex digits
+    const char hex_digits[] = "0123456789ABCDEF";
+    char hex_str[5];
+    // Fill in the two characters for the hex representation
+    hex_str[0] = '0';
+    hex_str[1] = 'x';
+    hex_str[2] = hex_digits[(data >> 4) & 0x0F]; // High nibble
+    hex_str[3] = hex_digits[data & 0x0F];        // Low nibble
+    hex_str[4] = '\0';                           // Null-terminate the string
+    println(hex_str);
 }
 
 /*

@@ -9,7 +9,8 @@
 
 void camera_init(I2C_HandleTypeDef *hi2c);
 uint8_t write_byte_to_camera(uint8_t reg, const uint8_t * data);
-void read_from_camera(const uint8_t * SubAddress);
+uint8_t read_test();
+uint8_t read_from_camera(const uint8_t * SubAddress);
 void read_image();
 
 

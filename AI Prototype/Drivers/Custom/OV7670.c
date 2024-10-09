@@ -32,7 +32,7 @@ uint16_t image[480][640];
  * Reg - The slave register to manipulate
  * Data - Pointer to data to be transmitted
  * */
-uint8_t write_byte_to_camera(uint8_t reg, const uint8_t data){
+HAL_StatusTypeDef write_byte_to_camera(uint8_t reg, uint8_t * data){
 	//TODO: complete the write to camera transmission function, need to refer to I2C exercise on how writing worked
 	// Check for valid pointer
 	if(data == NULL){
@@ -41,37 +41,27 @@ uint8_t write_byte_to_camera(uint8_t reg, const uint8_t data){
 	// Populate buffer
 	uint8_t txBuff[2];
 	txBuff[0] = reg;	// Byte 0 is always register addr
-	txBuff[1] = data;	// Byte n carry data
-	HAL_StatusTypeDef ret = HAL_I2C_Master_Transmit(i2c_inst, WRITE_ADDR, &txBuff, 2, HAL_MAX_DELAY);
+	txBuff[1] = *data;	// Byte n carry data
+	HAL_StatusTypeDef ret = HAL_I2C_Master_Transmit(i2c_inst, WRITE_ADDR, txBuff, 2, HAL_MAX_DELAY);
 	HAL_Delay(5);
 	if(ret == HAL_ERROR){
-		return -1;
+		println("HAL_ERROR for 3 phase write for camera write");
 	}
-	return 0;	// Success
+	return ret;	// Success
 }
 
-uint8_t read_from_camera(uint8_t reg, uint8_t * data) {
-	println("Reading form camera...");
-	uint8_t rxbuff[1] = {reg};
-	printint(rxbuff[0]);
-	HAL_StatusTypeDef ret = HAL_I2C_Master_Transmit(i2c_inst, READ_ADDR, rxbuff, 1, HAL_MAX_DELAY);
-//	 HAL_StatusTypeDef read_confirmation = HAL_I2C_Master_Receive(i2c_inst, READ_ADDR, rxbuff, 1, HAL_MAX_DELAY);
-//	if(ret == HAL_OK){
-//		read_confirmation = HAL_I2C_Master_Receive(i2c_inst, READ_ADDR, data, 1, HAL_MAX_DELAY);
-//		println("HAL_OK for transmission for read from camera");
-//	}
-//	if(ret == HAL_ERROR){
-//		println("HAL_ERROR for transmission for read from camera");
-//	}
-	if(ret == HAL_OK){
-			println("OVO Read SUCCESS");
-			return 0;
-	}
+HAL_StatusTypeDef read_byte_from_camera(uint8_t reg, uint8_t * data) {
+	uint8_t regRead = reg;
+	uint8_t * rxBuff = data;
+	HAL_StatusTypeDef ret = HAL_I2C_Master_Transmit(i2c_inst, READ_ADDR, &regRead, 1, HAL_MAX_DELAY);
 	if(ret == HAL_ERROR){
-		println("OVO Read Fail");
-		return -1;
+		println("HAL_ERROR for 2 phase write required for camera read");
 	}
-	return 0;
+	ret = HAL_I2C_Master_Receive(i2c_inst, READ_ADDR, rxBuff, 1, HAL_MAX_DELAY);
+	if(ret == HAL_ERROR){
+		println("HAL_ERROR for 2 phase read required for camera read");
+	}
+	return ret;
 }
 
 
@@ -149,40 +139,42 @@ void read_image(){
 
 void camera_init(I2C_HandleTypeDef *hi2c){
 	i2c_inst = hi2c;
-	//First reset and turn PWDN high so we aren't in SUSPEND mode
-	HAL_GPIO_WritePin(GPIOA, CAM_RST_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(GPIOA, CAM_RST_Pin, GPIO_PIN_SET);
+	/* Reset currently driven high by wire GPIO has no effect */
+//	HAL_GPIO_WritePin(GPIOA, CAM_RST_Pin, GPIO_PIN_RESET);
+//	HAL_GPIO_WritePin(GPIOA, CAM_RST_Pin, GPIO_PIN_SET);
+	/* May need to be messed with */
 //	HAL_GPIO_WritePin(PWDN_GPIO_Port, PWDN_Pin, GPIO_PIN_SET);
 	//Send transmission to initialize RGB 565 mode
 	uint8_t reset_signal = 0x80;
 	uint8_t RGB_mode_COM7 = 0x04;
 	uint8_t RGB_mode_COM15 = 0x10;
-	uint8_t reset = write_byte_to_camera(COM7, reset_signal);
-	HAL_Delay(1);
-//	uint8_t rgb_mode = write_byte_to_camera(COM7, &RGB_mode_COM7);
-//	uint8_t rgb_mode_2 = write_byte_to_camera(COM15, &RGB_mode_COM15);
-//	if(rgb_mode == -1 || rgb_mode_2 == -1 || reset == -1){
-//		println("failed RGB mode initialization");
-//	}
+	HAL_StatusTypeDef ret = write_byte_to_camera(COM7, &reset_signal);
+	if(ret == HAL_ERROR){
+		println("Failed to software reset on COM7");
+	}
+	HAL_Delay(1);	//Requires 1ms delay before modifying other registers
+	ret = write_byte_to_camera(COM7, &RGB_mode_COM7);
+	if(ret == HAL_ERROR){
+		println("Failed to set COM7 for RGB");
+	}
+	ret = write_byte_to_camera(COM15, &RGB_mode_COM15);
+	if(ret == HAL_ERROR){
+		println("Failed to set COM15 for RGB");
+	}
 	println("Camera Initialized");
 	return;
 }
 
-uint8_t read_test(){
-	println("manual print test:");
-	uint8_t test = 0xBB;
-	printint(test);
-	uint8_t data = 0xFF;
-	read_from_camera(COM6, &data);
-	println("data:");
-	printint(data);
-	return data;
-//	if(data == 0x76){
-//		println("success");
-//	}
-//	else{
-//		println("fail");
-//	}
-//	return;
+void read_test(){
+	println("Read Test:");
+	uint8_t data;
+	uint8_t PID_reg = 0x0A; // PID reg has constant value of 0x76
+	(void)read_byte_from_camera(PID_reg, &data);
+	if(data == 0x76){
+		println("Read Works");
+	}
+	else{
+		println("Read Fail");
+	}
 }
 

@@ -126,7 +126,8 @@ int main(void)
 
   int angle = 0;
   int clockwise = 0;
-  TIM3->CCR2 = 5000;
+  setServoAngle(180);
+  camera_init(&hi2c4);
 
 
   /* USER CODE END 2 */
@@ -135,7 +136,6 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 //  const uint8_t * data = (uint8_t *)"Hello World                                                                       \n";
 //  (void)HAL_UART_Transmit(&huart4, data, 80, 0xFFFF);
-  //camera_init(&hi2c1);
 //  uint8_t value = read_test();
 //  read_image();
 //  static uint8_t rxBuf[4];
@@ -148,9 +148,11 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 //    }
+  uint8_t data = read_test();
   while (1)
   {
-	  camera_init(&hi2c4);
+//	  uint8_t data = read_test();
+	  //camera_init(&hi2c4);
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -358,9 +360,9 @@ static void MX_TIM3_Init(void)
 
   /* USER CODE END TIM3_Init 1 */
   htim3.Instance = TIM3;
-  htim3.Init.Prescaler = 96-1;
+  htim3.Init.Prescaler = 4-1;
   htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim3.Init.Period = 10000-1;
+  htim3.Init.Period = 2-1;
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
@@ -383,7 +385,7 @@ static void MX_TIM3_Init(void)
     Error_Handler();
   }
   sConfigOC.OCMode = TIM_OCMODE_PWM1;
-  sConfigOC.Pulse = 0;
+  sConfigOC.Pulse = 1;
   sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
   sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
   if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_3) != HAL_OK)

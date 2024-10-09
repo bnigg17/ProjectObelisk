@@ -33,7 +33,7 @@ void println(const char * string){
     (void)HAL_UART_Transmit(huart_inst, txBuff, CHAR_COLS, 0xFFFF);
 }
 
-void printint(const uint8_t data){
+void printHex(uint8_t data){
     // Each byte can be represented in 2 hex digits
     const char hex_digits[] = "0123456789ABCDEF";
     char hex_str[5];

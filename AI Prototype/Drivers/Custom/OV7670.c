@@ -32,7 +32,7 @@ uint16_t image[480][640];
  * Reg - The slave register to manipulate
  * Data - Pointer to data to be transmitted
  * */
-uint8_t write_byte_to_camera(uint8_t reg, const uint8_t * data){
+uint8_t write_byte_to_camera(uint8_t reg, const uint8_t data){
 	//TODO: complete the write to camera transmission function, need to refer to I2C exercise on how writing worked
 	// Check for valid pointer
 	if(data == NULL){
@@ -41,8 +41,9 @@ uint8_t write_byte_to_camera(uint8_t reg, const uint8_t * data){
 	// Populate buffer
 	uint8_t txBuff[2];
 	txBuff[0] = reg;	// Byte 0 is always register addr
-	txBuff[1] = *data;	// Byte n carry data
-	HAL_StatusTypeDef ret = HAL_I2C_Master_Transmit(i2c_inst, WRITE_ADDR, txBuff, 2, HAL_MAX_DELAY);
+	txBuff[1] = data;	// Byte n carry data
+	HAL_StatusTypeDef ret = HAL_I2C_Master_Transmit(i2c_inst, WRITE_ADDR, &txBuff, 2, HAL_MAX_DELAY);
+	HAL_Delay(5);
 	if(ret == HAL_ERROR){
 		return -1;
 	}
@@ -149,20 +150,20 @@ void read_image(){
 void camera_init(I2C_HandleTypeDef *hi2c){
 	i2c_inst = hi2c;
 	//First reset and turn PWDN high so we aren't in SUSPEND mode
-	HAL_GPIO_WritePin(GPIOA, CAM_RST_Pin, GPIO_PIN_SET);
 	HAL_GPIO_WritePin(GPIOA, CAM_RST_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(PWDN_GPIO_Port, PWDN_Pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(GPIOA, CAM_RST_Pin, GPIO_PIN_SET);
+//	HAL_GPIO_WritePin(PWDN_GPIO_Port, PWDN_Pin, GPIO_PIN_SET);
 	//Send transmission to initialize RGB 565 mode
 	uint8_t reset_signal = 0x80;
 	uint8_t RGB_mode_COM7 = 0x04;
 	uint8_t RGB_mode_COM15 = 0x10;
-	uint8_t reset = write_byte_to_camera(COM7, &reset_signal);
+	uint8_t reset = write_byte_to_camera(COM7, reset_signal);
 	HAL_Delay(1);
-	uint8_t rgb_mode = write_byte_to_camera(COM7, &RGB_mode_COM7);
-	uint8_t rgb_mode_2 = write_byte_to_camera(COM15, &RGB_mode_COM15);
-	if(rgb_mode == -1 || rgb_mode_2 == -1 || reset == -1){
-		println("failed RGB mode initialization");
-	}
+//	uint8_t rgb_mode = write_byte_to_camera(COM7, &RGB_mode_COM7);
+//	uint8_t rgb_mode_2 = write_byte_to_camera(COM15, &RGB_mode_COM15);
+//	if(rgb_mode == -1 || rgb_mode_2 == -1 || reset == -1){
+//		println("failed RGB mode initialization");
+//	}
 	println("Camera Initialized");
 	return;
 }

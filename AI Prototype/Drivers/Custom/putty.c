@@ -16,21 +16,15 @@ void init_putty(UART_HandleTypeDef * huart){
     huart_inst = huart;
 }
 
-void println(const char * string){
-    uint8_t txBuff[CHAR_COLS];
-    int eos_flag = 0;
-    for(int i = 0; i < CHAR_COLS; i++){
-        if(string[i] == '\0'){
-            eos_flag = 1;
-        }
-        if(!eos_flag){
-            txBuff[i] = string[i];
-        }
-        else{
-            txBuff[i] = ' ';
-        }
-    }
-    (void)HAL_UART_Transmit(huart_inst, txBuff, CHAR_COLS, 0xFFFF);
+/* CANNOT EXCEED 80 CHARACTERS, only fits default size PuTTY window*/
+void print(const char * data){
+	uint8_t output[80] = {' ', ' ',' ',' ',' ',' ',' ',' ',' ',' ',' ', ' ',' ',' ',' ',' ',' ',' ',' ',' ',' ', ' ',' ',' ',' ',' ',' ',' ',' ',' ',' ', ' ',' ',' ',' ',' ',' ',' ',' ',' ',' ', ' ',' ',' ',' ',' ',' ',' ',' ',' ',' ', ' ',' ',' ',' ',' ',' ',' ',' ',' ',' ', ' ',' ',' ',' ',' ',' ',' ',' ',' ',' ', ' ',' ',' ',' ',' ',' ',' ',' ',' '};
+	int i = 0;
+	while(data[i] != '\0'){
+		output[i] = data[i];
+		i++;
+	}
+	(void)HAL_UART_Transmit(huart_inst, output, 80, 0xFFFF);
 }
 
 void printHex(uint8_t data){
@@ -43,7 +37,8 @@ void printHex(uint8_t data){
     hex_str[2] = hex_digits[(data >> 4) & 0x0F]; // High nibble
     hex_str[3] = hex_digits[data & 0x0F];        // Low nibble
     hex_str[4] = '\0';                           // Null-terminate the string
-    println(hex_str);
+    print(hex_str);
+
 }
 
 /*

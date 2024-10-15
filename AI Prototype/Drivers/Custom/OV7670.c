@@ -6,6 +6,7 @@
  */
 #include "../../Core/Inc/main.h"
 #include "putty.h"
+#include "OV7670.h"
 
 /*
  * Can communicate with either I2C or SCCB. Difference is I2C needs pull up resistors for 1's and 0's only. SCCB allow for impeaded state
@@ -21,11 +22,11 @@
 #define COM15 0x40 //RGB setting
 #define COM6 0x0F //PID register for reading test
 
+//Instantiate a structure to store the pixels of the image
+uint16_t image[640*480];
+
 // File variable needed to map camera and i2c
 I2C_HandleTypeDef * i2c_inst;
-
-//Instantiate a structure to store the pixels of the image
-uint16_t image[480][640];
 
 /*
  * Wrapper for I2C communication to camera
@@ -45,7 +46,7 @@ HAL_StatusTypeDef write_byte_to_camera(uint8_t reg, uint8_t * data){
 	HAL_StatusTypeDef ret = HAL_I2C_Master_Transmit(i2c_inst, WRITE_ADDR, txBuff, 2, HAL_MAX_DELAY);
 	HAL_Delay(5);
 	if(ret == HAL_ERROR){
-		println("HAL_ERROR for 3 phase write for camera write");
+		print("HAL_ERROR for 3 phase write for camera write");
 	}
 	return ret;	// Success
 }
@@ -55,17 +56,17 @@ HAL_StatusTypeDef read_byte_from_camera(uint8_t reg, uint8_t * data) {
 	uint8_t * rxBuff = data;
 	HAL_StatusTypeDef ret = HAL_I2C_Master_Transmit(i2c_inst, READ_ADDR, &regRead, 1, HAL_MAX_DELAY);
 	if(ret == HAL_ERROR){
-		println("HAL_ERROR for 2 phase write required for camera read");
+		print("HAL_ERROR for 2 phase write required for camera read");
 	}
 	ret = HAL_I2C_Master_Receive(i2c_inst, READ_ADDR, rxBuff, 1, HAL_MAX_DELAY);
 	if(ret == HAL_ERROR){
-		println("HAL_ERROR for 2 phase read required for camera read");
+		print("HAL_ERROR for 2 phase read required for camera read");
 	}
 	return ret;
 }
 
 
-void read_image(){
+uint16_t * read_image(){
 	// Instantiate GPIO objects
 	GPIO_PinState HSYNC =  HAL_GPIO_ReadPin(HSYNC_GPIO_Port, HSYNC_Pin);
 	GPIO_PinState PCLK = HAL_GPIO_ReadPin(GPIOA, PCLK_Pin);
@@ -128,13 +129,14 @@ void read_image(){
 					pixel |= 0x0001;
 				}
 			}
-			image[row_index][column_index] = pixel;
+			image[row_index*640 + column_index] = pixel;
 			column_index++;
 			HSYNC =  HAL_GPIO_ReadPin(HSYNC_GPIO_Port, HSYNC_Pin);
 		}
 		row_index++;
 		VSYNC =  HAL_GPIO_ReadPin(GPIOC, VSYNC_Pin);
 	}
+	return &image;
 }
 
 void camera_init(I2C_HandleTypeDef *hi2c){
@@ -150,31 +152,32 @@ void camera_init(I2C_HandleTypeDef *hi2c){
 	uint8_t RGB_mode_COM15 = 0x10;
 	HAL_StatusTypeDef ret = write_byte_to_camera(COM7, &reset_signal);
 	if(ret == HAL_ERROR){
-		println("Failed to software reset on COM7");
+		print("Failed to software reset on COM7");
 	}
 	HAL_Delay(1);	//Requires 1ms delay before modifying other registers
 	ret = write_byte_to_camera(COM7, &RGB_mode_COM7);
 	if(ret == HAL_ERROR){
-		println("Failed to set COM7 for RGB");
+		print("Failed to set COM7 for RGB");
 	}
 	ret = write_byte_to_camera(COM15, &RGB_mode_COM15);
 	if(ret == HAL_ERROR){
-		println("Failed to set COM15 for RGB");
+		print("Failed to set COM15 for RGB");
 	}
-	println("Camera Initialized");
+	print("Camera Initialized");
 	return;
 }
 
 void read_test(){
-	println("Read Test:");
+	print("Read Test:");
 	uint8_t data;
 	uint8_t PID_reg = 0x0A; // PID reg has constant value of 0x76
 	(void)read_byte_from_camera(PID_reg, &data);
 	if(data == 0x76){
-		println("Read Works");
+		print("Read Works");
 	}
 	else{
-		println("Read Fail");
+		print("Read Fail");
 	}
+	printHex(data);
 }
 

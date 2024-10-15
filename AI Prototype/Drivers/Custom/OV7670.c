@@ -181,3 +181,21 @@ void read_test(){
 	printHex(data);
 }
 
+void ram_test(){
+	int counter = 0;
+	for(int i = 0; i < 640 * 480; i++){
+		image[i] = (uint16_t)(i % 640);
+	}
+	uint16_t buffer[80];
+	for(int i = 0; i < 640 * 480; i++){
+		if(counter < 40){
+			buffer[i%40] = image[i];
+		}
+		else{
+			counter = 0;
+			print(buffer);
+		}
+		counter++;
+	}
+}
+

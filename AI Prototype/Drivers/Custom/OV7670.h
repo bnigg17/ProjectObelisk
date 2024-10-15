@@ -14,7 +14,7 @@ void read_test();
 HAL_StatusTypeDef read_byte_from_camera(uint8_t reg, uint8_t * data);
 uint16_t * read_image();
 
-
+void ram_test();
 
 
 #endif /* CUSTOM_OV7670_H_ */

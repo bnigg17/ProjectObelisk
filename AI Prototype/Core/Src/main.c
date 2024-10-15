@@ -113,9 +113,9 @@ int main(void)
   HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
   init_putty(&huart4);
 
-  int angle = 0;
-  int clockwise = 0;
-  setServoAngle(180);
+//  int angle = 0;
+//  int clockwise = 0;
+//  setServoAngle(180);
   camera_init(&hi2c4);
 
 
@@ -138,21 +138,21 @@ int main(void)
     /* USER CODE BEGIN 3 */
 //    }
   //read_test();
-  uint16_t * image;
-  image = read_image();
-  for(int i = 0; i < 80; i++){
-	  uint8_t upper = (image[i] >> 8) && 0x00FF;
-	  uint8_t lower = image[i] & 0x00FF;
-	  printHex(upper);
-	  printHex(lower);
-  }
-  image = read_image();
-  for(int i = 0; i < 80; i++){
-	  uint8_t upper = (image[i] >> 8) && 0x00FF;
-	  uint8_t lower = image[i] & 0x00FF;
-	  printHex(upper);
-	  printHex(lower);
-  }
+  ram_test();
+//  image = read_image();
+//  for(int i = 0; i < 80; i++){
+//	  uint8_t upper = (image[i] >> 8) && 0x00FF;
+//	  uint8_t lower = image[i] & 0x00FF;
+//	  printHex(upper);
+//	  printHex(lower);
+//  }
+//  image = read_image();
+//  for(int i = 0; i < 80; i++){
+//	  uint8_t upper = (image[i] >> 8) && 0x00FF;
+//	  uint8_t lower = image[i] & 0x00FF;
+//	  printHex(upper);
+//	  printHex(lower);
+//  }
 
   while (1)
   {

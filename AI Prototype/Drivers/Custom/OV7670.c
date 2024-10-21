@@ -21,6 +21,8 @@
 #define COM2 0x09	// Standby Mode Enable - Active High
 #define COM15 0x40 //RGB setting
 #define COM6 0x0F //PID register for reading test
+#define DBLV 0x6B // PLL scalar for input clock. Bits [7:6]
+#define CLKRC 0x11 // PLL Divisor for input clock. Bits [5:0]
 
 //Instantiate a structure to store the pixels of the image
 uint16_t image[640*480];
@@ -141,11 +143,6 @@ uint16_t * read_image(){
 
 void camera_init(I2C_HandleTypeDef *hi2c){
 	i2c_inst = hi2c;
-	/* Reset currently driven high by wire GPIO has no effect */
-//	HAL_GPIO_WritePin(GPIOA, CAM_RST_Pin, GPIO_PIN_RESET);
-//	HAL_GPIO_WritePin(GPIOA, CAM_RST_Pin, GPIO_PIN_SET);
-	/* May need to be messed with */
-//	HAL_GPIO_WritePin(PWDN_GPIO_Port, PWDN_Pin, GPIO_PIN_SET);
 	//Send transmission to initialize RGB 565 mode
 	uint8_t reset_signal = 0x80;
 	uint8_t RGB_mode_COM7 = 0x04;
@@ -155,6 +152,26 @@ void camera_init(I2C_HandleTypeDef *hi2c){
 		print("Failed to software reset on COM7");
 	}
 	HAL_Delay(1);	//Requires 1ms delay before modifying other registers
+	uint8_t data;
+	ret = read_byte_from_camera(DBLV, &data);		// Get register content
+	print("DBLV Before:");
+	printHex(data);
+//	data &= 0x3F;
+//	data |= 0x80;
+	data |= 0xC0;									// Modify the PLL scalar bits only, force [7:6] to 1
+	ret = write_byte_to_camera(DBLV, &data);		// Set the bits in register
+	print("DBLV After:");
+	printHex(data);
+	ret = read_byte_from_camera(CLKRC, &data);
+	print("CLKRC Before:");
+	printHex(data);
+	data &= 0xC3;									// Force [5:0] to 0
+	ret = write_byte_to_camera(CLKRC, &data);
+	print("CLKRC After:");
+	printHex(data);
+	if(ret == HAL_ERROR){
+		print("Failed to set internal clk properly");
+	}
 	ret = write_byte_to_camera(COM7, &RGB_mode_COM7);
 	if(ret == HAL_ERROR){
 		print("Failed to set COM7 for RGB");

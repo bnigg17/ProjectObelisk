@@ -21,6 +21,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "../../Drivers/Custom/OV7670.h"
+#include "../../Drivers/Custom/putty.h"
 
 /* USER CODE END Includes */
 
@@ -123,41 +125,17 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-//  const uint8_t * data = (uint8_t *)"Hello World                                                                       \n";
-//  (void)HAL_UART_Transmit(&huart4, data, 80, 0xFFFF);
-//  uint8_t value = read_test();
-//  read_image();
-//  static uint8_t rxBuf[4];
-//  //do{
-//	  HAL_StatusTypeDef ret = HAL_UART_Receive(&huart4, rxBuf, 4, 0xFFFF);
-//	  (void)HAL_UART_Transmit(&huart4, uint32_t(ret), 4, 0xFFFF);
-//  //}while(rxBuf[0] != 0);
-//  (void)HAL_UART_Transmit(&huart4, rxBuf, 4, 0xFFFF);
+//  read_test();
+  //read_image();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-//    }
-  //read_test();
-  ram_test();
-//  image = read_image();
-//  for(int i = 0; i < 80; i++){
-//	  uint8_t upper = (image[i] >> 8) && 0x00FF;
-//	  uint8_t lower = image[i] & 0x00FF;
-//	  printHex(upper);
-//	  printHex(lower);
-//  }
-//  image = read_image();
-//  for(int i = 0; i < 80; i++){
-//	  uint8_t upper = (image[i] >> 8) && 0x00FF;
-//	  uint8_t lower = image[i] & 0x00FF;
-//	  printHex(upper);
-//	  printHex(lower);
-//  }
+//
 
   while (1)
   {
-//	  uint8_t data = read_test();
-	  //camera_init(&hi2c4);
+	  HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+	  HAL_Delay(200);
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -455,6 +433,9 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1|CAM_RST_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(PWDN_GPIO_Port, PWDN_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin : HSYNC_Pin */
@@ -483,6 +464,13 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : LED_Pin */
+  GPIO_InitStruct.Pin = LED_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(LED_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : PWDN_Pin */
   GPIO_InitStruct.Pin = PWDN_Pin;

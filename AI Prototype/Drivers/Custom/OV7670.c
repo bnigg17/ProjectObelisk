@@ -20,9 +20,11 @@
 #define COM7 0x12	// 0 - Normal operation, Resets all regs and resets bit to 0 (i.e normal operation mode)
 #define COM2 0x09	// Standby Mode Enable - Active High
 #define COM15 0x40 //RGB setting
+#define COM10 0x15 //for horizontal sync setting
 #define COM6 0x0F //PID register for reading test
 #define DBLV 0x6B // PLL scalar for input clock. Bits [7:6]
 #define CLKRC 0x11 // PLL Divisor for input clock. Bits [5:0]
+#define HREF 0x32
 
 //Instantiate a structure to store the pixels of the image
 uint16_t image[640*480];
@@ -156,18 +158,26 @@ void camera_init(I2C_HandleTypeDef *hi2c){
 	ret = read_byte_from_camera(DBLV, &data);		// Get register content
 	print("DBLV Before:");
 	printHex(data);
-//	data &= 0x3F;
+	data &= 0x3F;
 //	data |= 0x80;
-	data |= 0xC0;									// Modify the PLL scalar bits only, force [7:6] to 1
+//	data |= 0x40;
+//	data |= 0xC0;									// Modify the PLL scalar bits only, force [7:6] to 1
 	ret = write_byte_to_camera(DBLV, &data);		// Set the bits in register
 	print("DBLV After:");
 	printHex(data);
 	ret = read_byte_from_camera(CLKRC, &data);
 	print("CLKRC Before:");
 	printHex(data);
-	data &= 0xC3;									// Force [5:0] to 0
+	data |= 0x40;									// Force [5:0] to 0
 	ret = write_byte_to_camera(CLKRC, &data);
 	print("CLKRC After:");
+	printHex(data);
+	ret = read_byte_from_camera(COM10, &data);      // Specify HREF/HSYNC to work
+	print("COM10 Before:");
+	printHex(data);
+	data |= 0x60;
+	ret = write_byte_to_camera(COM10, &data);
+	print("COM10 After:");
 	printHex(data);
 	if(ret == HAL_ERROR){
 		print("Failed to set internal clk properly");
@@ -182,6 +192,59 @@ void camera_init(I2C_HandleTypeDef *hi2c){
 	}
 	print("Camera Initialized");
 	return;
+}
+
+void read_random_pixel(){
+	GPIO_PinState PCLK = HAL_GPIO_ReadPin(GPIOA, PCLK_Pin);
+	GPIO_PinState Data[8];
+	print("Reading random pixel...");
+	while(PCLK == GPIO_PIN_RESET){ //wait for rising edge, indicating the transmission of a byte
+		PCLK = HAL_GPIO_ReadPin(GPIOA, PCLK_Pin);
+	}
+	Data[7] =  HAL_GPIO_ReadPin(GPIOC, D0_Pin);
+	Data[6] =  HAL_GPIO_ReadPin(GPIOB, D1_Pin);
+	Data[5] =  HAL_GPIO_ReadPin(GPIOC, D2_Pin);
+	Data[4] =  HAL_GPIO_ReadPin(GPIOB, D3_Pin);
+	Data[3] =  HAL_GPIO_ReadPin(GPIOC, D4_Pin);
+	Data[2] =  HAL_GPIO_ReadPin(GPIOB, D5_Pin);
+	Data[1] =  HAL_GPIO_ReadPin(GPIOC, D6_Pin);
+	Data[0] =  HAL_GPIO_ReadPin(GPIOA, D7_Pin);
+	uint16_t pixel = 0;
+	for(int i = 0; i < 8; i++){
+		pixel <<= 1;
+		if(Data[i] == GPIO_PIN_RESET){
+			pixel |= 0x0000;
+		}
+		else{
+			pixel |= 0x0001;
+		}
+	}
+	PCLK = HAL_GPIO_ReadPin(GPIOA, PCLK_Pin);
+	while(PCLK == GPIO_PIN_RESET){ //wait for rising edge, indicating the transmission of a byte
+		PCLK = HAL_GPIO_ReadPin(GPIOA, PCLK_Pin);
+	}
+	Data[7] =  HAL_GPIO_ReadPin(GPIOC, D0_Pin);
+	Data[6] =  HAL_GPIO_ReadPin(GPIOB, D1_Pin);
+	Data[5] =  HAL_GPIO_ReadPin(GPIOC, D2_Pin);
+	Data[4] =  HAL_GPIO_ReadPin(GPIOB, D3_Pin);
+	Data[3] =  HAL_GPIO_ReadPin(GPIOC, D4_Pin);
+	Data[2] =  HAL_GPIO_ReadPin(GPIOB, D5_Pin);
+	Data[1] =  HAL_GPIO_ReadPin(GPIOC, D6_Pin);
+	Data[0] =  HAL_GPIO_ReadPin(GPIOA, D7_Pin);
+	for(int i = 0; i < 8; i++){
+		pixel <<= 1;
+		if(Data[i] == GPIO_PIN_RESET){
+			pixel |= 0x0000;
+		}
+		else{
+			pixel |= 0x0001;
+		}
+	}
+	uint8_t pixelMSBs = (pixel >> 8) & 0x0F;
+	uint8_t pixelLSBs = pixel & 0x0F;
+	printHex(pixelMSBs);
+	print("and");
+	printHex(pixelLSBs);
 }
 
 void read_test(){

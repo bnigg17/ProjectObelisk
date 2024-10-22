@@ -13,6 +13,7 @@ HAL_StatusTypeDef write_byte_to_camera(uint8_t reg, uint8_t * data);
 void read_test();
 HAL_StatusTypeDef read_byte_from_camera(uint8_t reg, uint8_t * data);
 uint16_t * read_image();
+void read_random_pixel();
 
 void ram_test();
 

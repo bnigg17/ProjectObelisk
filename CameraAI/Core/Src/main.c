@@ -68,7 +68,6 @@ static void MX_I2C4_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
 /* USER CODE END 0 */
 
 /**
@@ -104,13 +103,21 @@ int main(void)
   MX_UART4_Init();
   MX_I2C4_Init();
   /* USER CODE BEGIN 2 */
+  uint16_t image[OV7670_QVGA_WIDTH*OV7670_QVGA_HEIGHT];
+  for(int i = 0; i < OV7670_QVGA_WIDTH*OV7670_QVGA_HEIGHT; i++){
+	  image[i] = 0;
+  }
   init_putty(&huart4);
-  uint16_t image[160*120];
   uint16_t* pData = image;
   HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12, GPIO_PIN_RESET); //Camera PWDN to GND
-  ov7670_init(&hdcmi, &hdma_dcmi, &hi2c4);
+  ov7670_init(&hdcmi, &hdma_dcmi, &hi2c4, pData);
   ov7670_config(OV7670_MODE_QVGA_RGB565);
-  ov7670_startCap(OV7670_CAP_CONTINUOUS, (uint32_t)pData);
+  print_image(pData);
+  ov7670_startCap(OV7670_CAP_SINGLE_FRAME, (uint32_t)pData);
+
+
+//  HAL_Delay(5000);
+//  print_image(pData);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -118,10 +125,10 @@ int main(void)
 
   while (1)
   {
+//	  print_image(pData);
+//	  HAL_Delay(5000);
+//	  ov7670_startCap(OV7670_CAP_SINGLE_FRAME, (uint32_t)pData);
     /* USER CODE END WHILE */
-	  for(int i = 0; i < 80; i++){
-		  printHex(image[i]);
-	  }
 
     /* USER CODE BEGIN 3 */
   }

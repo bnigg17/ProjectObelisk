@@ -42,6 +42,7 @@ void printHex(uint8_t data){
 
 }
 
+
 /*
 Inteneded for recieve input for PuTTy terminal
 */
@@ -51,8 +52,14 @@ void putty_recieve(uint8_t * rxBuff){
 
 //Coherently 'print' the image data of size 160x120
 void print_image(uint16_t * image){
-	for (int j = 40; j < 80; j++){
-		printHex((uint8_t)(image[120*80 + j] & 0x0F));
+	for (int j = 0; j < 10; j++){
+		uint8_t red = (uint8_t)((image[j] & 0xF800) >> 11);
+		uint8_t green = (uint8_t)((image[j] & 0x07E0) >> 5);
+		uint8_t blue = (uint8_t)(image[j] & 0x001F);
+		print("New Pixel");
+		printHex(red);
+		printHex(green);
+		printHex(blue);
 	}
 }
 

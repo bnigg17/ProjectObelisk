@@ -126,7 +126,9 @@ void HAL_DCMI_FrameEventCallback(DCMI_HandleTypeDef *hdcmi)
 
 void HAL_DCMI_VsyncEventCallback(DCMI_HandleTypeDef *hdcmi)
 {
-	print("VSYNC: ");
+//	char buffer[33];
+//	sprintf(buffer, "VSYNC - New frame is available/n");
+//	print_mod(buffer, 33);
 	printHex(s_currentV++);
 	ov7670_stopCap();
 	print_image(s_destAddressForContiuousMode);

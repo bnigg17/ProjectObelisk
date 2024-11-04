@@ -51,15 +51,48 @@ void putty_recieve(uint8_t * rxBuff){
 }
 
 //Coherently 'print' the image data of size 160x120
-void print_image(uint16_t * image){
-	for (int j = 0; j < 10; j++){
-		uint8_t red = (uint8_t)((image[j] & 0xF800) >> 11);
-		uint8_t green = (uint8_t)((image[j] & 0x07E0) >> 5);
-		uint8_t blue = (uint8_t)(image[j] & 0x001F);
-		print("New Pixel");
-		printHex(red);
-		printHex(green);
-		printHex(blue);
-	}
+//void print_image(uint16_t * image){
+//
+//	for (int j = 0; j < 10; j++){
+//		uint8_t red = (uint8_t)((image[j] & 0xF800) >> 11);
+//		uint8_t green = (uint8_t)((image[j] & 0x07E0) >> 5);
+//		uint8_t blue = (uint8_t)(image[j] & 0x001F);
+//		print("New Pixel");
+//		printHex(red);
+//		printHex(green);
+//		printHex(blue);
+//	}
+//}
+
+void print_mod(const char * data, uint32_t size){
+	(void)HAL_UART_Transmit(huart_inst, (uint8_t *)data, size, HAL_MAX_DELAY);
 }
+
+void print_image(uint16_t *image) {
+    char buffer[200];  // Allocate a larger buffer to hold all data
+    int buffer_length = 0;  // Current length of the buffer
+    int pixels_per_line = 3; // Number of pixels to print per line
+    int pixel_count = 0;      // Count the number of pixels printed in the current line
+
+    for (int j = 0; j < 30; j++) {
+        // Extract RGB components from RGB565 format
+        uint8_t red = (uint8_t)((image[j] & 0xF800) >> 11);
+        uint8_t green = (uint8_t)((image[j] & 0x07E0) >> 5);
+        uint8_t blue = (uint8_t)(image[j] & 0x001F);
+
+        // Format each pixel's color values in hexadecimal
+        // Use buffer_length to append to the end of the buffer
+        buffer_length += sprintf(buffer + buffer_length, "(R=0x%02X G=0x%02X B=0x%02X)  ", red, green, blue);
+
+        pixel_count++;
+        // After printing a certain number of pixels, send a newline
+        if (pixel_count >= pixels_per_line) {
+            buffer[buffer_length] = '\0';	//Ensure print can add appropriate spacing
+            print(buffer); // Send the current buffer via UART
+            buffer_length = 0;  // Reset buffer length for the next line
+            pixel_count = 0;     // Reset pixel count
+        }
+    }
+}
+
 

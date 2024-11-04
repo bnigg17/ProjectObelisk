@@ -12,6 +12,6 @@ void init_putty(UART_HandleTypeDef * huart);
 void putty_recieve(uint8_t * rxBuff);
 void printHex(uint8_t data);
 void print(const char * data);
+void print_mod(const char * data, uint32_t size);
 void print_image();
-
 #endif /* CUSTOM_PUTTY_H_ */

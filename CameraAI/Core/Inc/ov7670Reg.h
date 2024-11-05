@@ -19,6 +19,10 @@ const uint8_t OV7670_reg[][2] = {
   {0x3D, 0x80 + 0x00},   // gamma enable, UV auto adjust, UYVY
   {0xB0, 0x84}, // important
 
+  //brightness related
+  {0x55, 0x40}, // brightness, bit7: 0 positive, 1 negative bits[6:0] brightness val
+  {0x56, 0x40}, // contrast, 0x40 is no contrast adjustment
+
   /* clock related */
   {0x0C, 0x04},  // DCW enable
   {0x3E, 0x19},  // manual scaling, pclk/=2

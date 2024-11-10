@@ -48,7 +48,7 @@ HAL_StatusTypeDef ov7670_init(DCMI_HandleTypeDef *p_hdcmi, DMA_HandleTypeDef *p_
 
   ret |= ov7670_read(0x0b, buffer);
 
-  print("OV7670 Inialized");
+//  print("OV7670 Inialized");
   return ret;
 }
 
@@ -66,7 +66,7 @@ HAL_StatusTypeDef ov7670_config(uint32_t mode)
 	  print("OV7670 Config Fail");
   }
   else{
-	  print("OV7670 Config Success");
+//	  print("OV7670 Config Success");
   }
   return ret;
 }

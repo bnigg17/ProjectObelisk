@@ -112,7 +112,7 @@ int main(void)
   HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12, GPIO_PIN_RESET); //Camera PWDN to GND
   ov7670_init(&hdcmi, &hdma_dcmi, &hi2c4, pData);
   ov7670_config(OV7670_MODE_QVGA_RGB565);
-  print_image(pData);
+  //print_image(pData);
   ov7670_startCap(OV7670_CAP_SINGLE_FRAME, (uint32_t)pData);
 
 

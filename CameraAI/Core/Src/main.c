@@ -107,6 +107,7 @@ int main(void)
   for(int i = 0; i < OV7670_QVGA_WIDTH*OV7670_QVGA_HEIGHT; i++){
 	  image[i] = 0;
   }
+
   init_putty(&huart4);
   uint16_t* pData = image;
   HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12, GPIO_PIN_RESET); //Camera PWDN to GND

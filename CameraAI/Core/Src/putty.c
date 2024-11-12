@@ -64,32 +64,53 @@ void putty_recieve(uint8_t * rxBuff){
 //	}
 //}
 
-void print_mod(const char * data, uint32_t size){
+void print_mod(const uint8_t * data, uint32_t size){
 	HAL_StatusTypeDef ret = HAL_UART_Transmit(huart_inst, (uint8_t *)data, size, HAL_MAX_DELAY);
 	if(ret != HAL_OK){
 		print("print error");
 	}
 }
 
-#define NUM_PIXELS 30
-#define PIXEL_FORMAT_SIZE 17
+#define NUM_PIXELS 320*240
 
 void print_image(uint16_t *image) {
-    char buffer[PIXEL_FORMAT_SIZE*NUM_PIXELS+2];  // Allocate a larger buffer to hold all data, 23 is format size, 2 is for start and stop char
-    int buffer_length = 0;  // Current length of the buffer
-    buffer[buffer_length++] = 'S';	// Start char
-    for (int j = 0; j < NUM_PIXELS; j++) {
+    uint8_t buffer[3 * NUM_PIXELS + 1];  // 960 bytes for RGB data, plus 2 for start/end chars
+    uint32_t length = 0;
+
+    buffer[length++] = (uint8_t)'S';  // Start character
+
+    for (int i = 0; i < NUM_PIXELS; i++) {
         // Extract RGB components from RGB565 format
-        uint8_t red = (uint8_t)((image[j] & 0xF800) >> 11);
-        uint8_t green = (uint8_t)((image[j] & 0x07E0) >> 5);
-        uint8_t blue = (uint8_t)(image[j] & 0x001F);
+        uint8_t red = (uint8_t)((image[i] & 0xF800) >> 11);
+        uint8_t green = (uint8_t)((image[i] & 0x07E0) >> 5);
+        uint8_t blue = (uint8_t)(image[i] & 0x001F);
 
-        // Use buffer_length to append to the end of the buffer
-        buffer_length += snprintf(buffer + buffer_length, PIXEL_FORMAT_SIZE, "(0x%02X,0x%02X,0x%02X)", red, green, blue);
-
+        // Store each color component in the buffer
+        buffer[length++] = red;
+        buffer[length++] = green;
+        buffer[length++] = blue;
     }
-    buffer[buffer_length++] = 'E';	// End char
-    print_mod(buffer, buffer_length);
+    // Transmit the buffer with the specified length
+    print_mod(buffer, length);
 }
+
+#define PIXEL_FORMAT_SIZE 11
+
+//void print_image(uint16_t *image) {
+//    char buffer[PIXEL_FORMAT_SIZE*NUM_PIXELS+2];  // Allocate a larger buffer to hold all data, 23 is format size, 2 is for start and stop char
+//    int buffer_length = 0;  // Current length of the buffer
+//    buffer[buffer_length++] = 'S';	// Start char
+//    for(int i = 0; i < 320*1; i++){
+//		// Extract RGB components from RGB565 format
+//		uint8_t red = (uint8_t)((image[i] & 0xF800) >> 11);
+//		uint8_t green = (uint8_t)((image[i] & 0x07E0) >> 5);
+//		uint8_t blue = (uint8_t)(image[i] & 0x001F);
+//
+//		// Use buffer_length to append to the end of the buffer
+//		buffer_length += snprintf(buffer + buffer_length, PIXEL_FORMAT_SIZE, "(0x%02X,0x%02X,0x%02X)", red, green, blue);
+//    }
+//    buffer[buffer_length++] = 'E';	// End char
+//    print_mod(buffer, buffer_length);
+//}
 
 

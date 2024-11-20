@@ -58,7 +58,7 @@ HAL_StatusTypeDef ov7670_config(uint32_t mode)
   ov7670_write(0x12, 0x80);  // RESET
   HAL_Delay(30);
   HAL_StatusTypeDef ret = HAL_OK;
-  for(int i = 0; OV7670_reg[i][0] != REG_BATT; i++) {
+  for(int i = 0; OV7670_reg[i][0] != REG_END; i++) {
     ret |= ov7670_write(OV7670_reg[i][0], OV7670_reg[i][1]);
     HAL_Delay(1);
   }
@@ -131,7 +131,7 @@ void HAL_DCMI_VsyncEventCallback(DCMI_HandleTypeDef *hdcmi)
 //	print_mod(buffer, 33);
 	printHex(s_currentV++);
 	ov7670_stopCap();
-	print_image(s_destAddressForContiuousMode);
+	print_image((uint16_t *)s_destAddressForContiuousMode);
     //HAL_DMA_Start_IT(hdcmi->DMA_Handle, (uint32_t)&hdcmi->Instance->DR, s_destAddressForContiuousMode, OV7670_QVGA_WIDTH * OV7670_QVGA_HEIGHT/2);
 }
 
@@ -143,32 +143,6 @@ void HAL_DCMI_VsyncEventCallback(DCMI_HandleTypeDef *hdcmi)
 //}
 
 /*** Internal Function Defines ***/
-//static RET ov7670_write(uint8_t regAddr, uint8_t data)
-//{
-//  HAL_StatusTypeDef ret;
-//  do {
-//    ret = HAL_I2C_Mem_Write(sp_hi2c, SLAVE_ADDR, regAddr, I2C_MEMADD_SIZE_8BIT, &data, 1, 100);
-//    if(ret == HAL_ERROR){
-//    	print("Reg write fail, REG:");
-//    	printHex(regAddr);
-//    }
-//  } while (ret != HAL_OK && 0);
-//  return ret;
-//}
-//
-//static RET ov7670_read(uint8_t regAddr, uint8_t *data)
-//{
-//  HAL_StatusTypeDef ret;
-//  do {
-//    ret = HAL_I2C_Master_Transmit(sp_hi2c, SLAVE_ADDR, &regAddr, 1, 100);
-//    ret |= HAL_I2C_Master_Receive(sp_hi2c, SLAVE_ADDR, data, 1, 100);
-//    if(ret == HAL_ERROR){
-//    	print("Reg read fail, REG:");
-//    	printHex(regAddr);
-//    }
-//  } while (ret != HAL_OK && 0);
-//  return ret;
-//}
 
 HAL_StatusTypeDef ov7670_write(uint8_t reg, uint8_t data){
 	//TODO: complete the write to camera transmission function, need to refer to I2C exercise on how writing worked
@@ -197,3 +171,23 @@ HAL_StatusTypeDef ov7670_read(uint8_t reg, uint8_t * data) {
 	}
 	return ret;
 }
+
+/* Functions for testing */
+#if TEST_MODE
+
+void ov7670_snapshot(uint8_t mode){
+	/* TODO need to make register writes to test setting configurations */
+	switch(mode){
+	case 0:
+		//ov7670_write(OV7670_reg[i][0], OV7670_reg[i][1]);
+	case 1:
+		//ov7670_write(OV7670_reg[i][0], OV7670_reg[i][1]);
+	case 2:
+		//ov7670_write(OV7670_reg[i][0], OV7670_reg[i][1]);
+	default:
+		return;
+	}
+	ov7670_startCap(OV7670_CAP_SINGLE_FRAME, s_destAddressForContiuousMode);
+}
+
+#endif

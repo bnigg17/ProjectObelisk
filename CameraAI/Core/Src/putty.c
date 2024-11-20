@@ -43,27 +43,15 @@ void printHex(uint8_t data){
 
 }
 
+#define MAX_RECIEVE_SIZE 64
 
-/*
-Inteneded for recieve input for PuTTy terminal
-*/
-void putty_recieve(uint8_t * rxBuff){
-    return;
+void terminal_recieve(uint8_t * rxBuff){
+	HAL_StatusTypeDef ret = HAL_UART_Receive(huart_inst, rxBuff, MAX_RECIEVE_SIZE, HAL_MAX_DELAY);
+    if(ret == HAL_ERROR){
+    	print("Receive Error");
+    }
 }
 
-//Coherently 'print' the image data of size 160x120
-//void print_image(uint16_t * image){
-//
-//	for (int j = 0; j < 10; j++){
-//		uint8_t red = (uint8_t)((image[j] & 0xF800) >> 11);
-//		uint8_t green = (uint8_t)((image[j] & 0x07E0) >> 5);
-//		uint8_t blue = (uint8_t)(image[j] & 0x001F);
-//		print("New Pixel");
-//		printHex(red);
-//		printHex(green);
-//		printHex(blue);
-//	}
-//}
 
 void print_mod(const uint8_t * data, uint32_t size){
 	HAL_StatusTypeDef ret = HAL_UART_Transmit(huart_inst, (uint8_t *)data, size, HAL_MAX_DELAY);
@@ -75,7 +63,7 @@ void print_mod(const uint8_t * data, uint32_t size){
 
 #define NUM_PIXELS OV7670_QVGA_WIDTH * OV7670_QVGA_HEIGHT
 
-void print_image(uint16_t *image, uint32_t section_idx) {
+void print_image(uint16_t *image) {
     uint8_t buffer[3 * NUM_PIXELS + 1];  // 320 * 6 rows * 3 pixels
     uint32_t length = 0;
 
@@ -98,23 +86,6 @@ void print_image(uint16_t *image, uint32_t section_idx) {
     print_mod(buffer, length);
 }
 
-//#define PIXEL_FORMAT_SIZE 11
-//
-//void print_image(uint16_t *image) {
-//    char buffer[PIXEL_FORMAT_SIZE*NUM_PIXELS+2];  // Allocate a larger buffer to hold all data, 23 is format size, 2 is for start and stop char
-//    int buffer_length = 0;  // Current length of the buffer
-//    buffer[buffer_length++] = 'S';	// Start char
-//    for(int i = 0; i < 320*1; i++){
-//		// Extract RGB components from RGB565 format
-//		uint8_t red = (uint8_t)((image[i] & 0xF800) >> 11);
-//		uint8_t green = (uint8_t)((image[i] & 0x07E0) >> 5);
-//		uint8_t blue = (uint8_t)(image[i] & 0x001F);
-//
-//		// Use buffer_length to append to the end of the buffer
-//		buffer_length += snprintf(buffer + buffer_length, PIXEL_FORMAT_SIZE, "(0x%02X,0x%02X,0x%02X)", red, green, blue);
-//    }
-//    buffer[buffer_length++] = 'E';	// End char
-//    print_mod(buffer, buffer_length);
-//}
+
 
 

@@ -46,9 +46,7 @@
 
 DCMI_HandleTypeDef hdcmi;
 DMA_HandleTypeDef hdma_dcmi;
-
 I2C_HandleTypeDef hi2c4;
-
 UART_HandleTypeDef huart4;
 
 /* USER CODE BEGIN PV */
@@ -102,23 +100,23 @@ int main(void)
   MX_DCMI_Init();
   MX_UART4_Init();
   MX_I2C4_Init();
+
   /* USER CODE BEGIN 2 */
+  init_putty(&huart4);
+
   uint16_t image[OV7670_QVGA_WIDTH*OV7670_QVGA_HEIGHT];
   for(int i = 0; i < OV7670_QVGA_WIDTH*OV7670_QVGA_HEIGHT; i++){
 	  image[i] = 0;
   }
-
-  init_putty(&huart4);
-  uint16_t* pData = image;
+  /* Camera Setup*/
   HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12, GPIO_PIN_RESET); //Camera PWDN to GND
   ov7670_init(&hdcmi, &hdma_dcmi, &hi2c4, pData);
   ov7670_config(OV7670_MODE_QVGA_RGB565);
-  //print_image(pData);
-  ov7670_startCap(OV7670_CAP_SINGLE_FRAME, (uint32_t)pData);
 
 
-//  HAL_Delay(5000);
-//  print_image(pData);
+  //ov7670_startCap(OV7670_CAP_SINGLE_FRAME, (uint32_t)image);
+  uint8_t * rxBuff;
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -126,9 +124,10 @@ int main(void)
 
   while (1)
   {
-//	  print_image(pData);
-//	  HAL_Delay(5000);
-//	  ov7670_startCap(OV7670_CAP_SINGLE_FRAME, (uint32_t)pData);
+	  if(rxBuff[0] != -1){
+		  terminal_recieve(rxBuff);
+		  ov7670_snapshot(rxBuff[0]);
+	  }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -148,21 +147,29 @@ void SystemClock_Config(void)
   /** Configure the main internal regulator output voltage
   */
   __HAL_RCC_PWR_CLK_ENABLE();
-  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE2);
+  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE3);
 
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
-  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
+  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+  RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLM = 4;
-  RCC_OscInitStruct.PLL.PLLN = 168;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
+  RCC_OscInitStruct.PLL.PLLM = 8;
+  RCC_OscInitStruct.PLL.PLLN = 96;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
   RCC_OscInitStruct.PLL.PLLQ = 2;
   RCC_OscInitStruct.PLL.PLLR = 2;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Activate the Over-Drive mode
+  */
+  if (HAL_PWREx_EnableOverDrive() != HAL_OK)
   {
     Error_Handler();
   }
@@ -173,10 +180,10 @@ void SystemClock_Config(void)
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_3) != HAL_OK)
   {
     Error_Handler();
   }
@@ -236,7 +243,7 @@ static void MX_I2C4_Init(void)
 
   /* USER CODE END I2C4_Init 1 */
   hi2c4.Instance = I2C4;
-  hi2c4.Init.Timing = 0x00A0A3F7;
+  hi2c4.Init.Timing = 0x20303E5D;
   hi2c4.Init.OwnAddress1 = 0;
   hi2c4.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
   hi2c4.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;

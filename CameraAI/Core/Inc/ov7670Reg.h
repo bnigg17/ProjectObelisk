@@ -7,17 +7,58 @@
 #ifndef OV7670_OV7670REG_H_
 #define OV7670_OV7670REG_H_
 
-#define REG_BATT 0xFF
-
+#define QVGA_MODE 0
+#define QCIF_MODE 1
+#define OLD 0
+#define REG_END 0xFF
 
 const uint8_t OV7670_reg[][2] = {
+		//href looks right for vga
+		//30us for href low
+		//60hz vsync
+#if QVGA_MODE
+		/* 30 FPS QVGA RGB565 Mode (320 x 240) */
+		{0x11, 0x04},   // CLKRC, 30 fps frame rate for QVGA. 0x04 for 30hz, 12Mhz pclk
+//		{0x11, 0x01},   // CLKRC, 60 fps frame rate for QVGA. 24MHz pclk
+		{0x12, 0x12},   // COM7, QVGA Preset, RGB mode.
+		{0x6B, 0x7a},	// DBLV, PLL Multiplier by 4x (Using PLL gives better than our supplied PCLK).
+		{0x40, 0xD0},	// COM15, Output Range [00] to [FF], RGB 565 Output.
+//		{0x15, 0x20},	// COM10, PCLK Gated by HREF (Data not transfered when on horizontal blank).
+//		{0x14, 0x6A},
+//		{0x4F, 0xB3},
+//		{0x50, 0xB3},
+//		{0x51, 0x00},
+//		{0x52, 0x3D},
+//		{0x53, 0xA7},
+//		{0x54, 0xE4},
+//		{0x3D, 0x99 | 0x40},
+#endif
+#if QCIF_MODE
+		/* 30 FPS QCIF RGB Mode (176 x 144) */
+		{0x11, 0x04},    // CLKRC, 60 fps frame rate for QCIF 24MHz.
+		{0x12, 0x06},    // COM7, QCIF Preset, RGB mode.
+		{0x6B, 0x7a},	 // DBLV, PLL Multiplier by 4x
+		{0x40, 0xF0},	 // COM15, Output Range [00] to [FF], RGB 555 Output
+		//{0x15, 0x20},	 // COM10, PCLK Gated by HREF (Data not transfered when on horizontal blank).
+		{0x14, 0x6A},	 // COM9, 128x AGC
+		{0x4F, 0xB3},	 // Matrix Coefficient 1
+		{0x50, 0xB3},    // Matrix Coefficient 2
+		{0x51, 0x00},    // Matrix Coefficient 3
+		{0x52, 0x3D},    // Matrix Coefficient 4
+		{0x53, 0xA7},    // Matrix Coefficient 5
+		{0x54, 0xE4},    // Matrix Coefficient 6
+		//{0x3D, 0x99 | 0x40}, // COM13,
+#endif
+
+#if OLD
+
   /* Color mode related */
-  {0x12, 0x14},   // QVGA, RGB
-  {0x8C, 0x00},   // RGB444 Disable
-  {0x40, 0x10 + 0xc0},   // RGB565, 00 - FF
-  {0x3A, 0x04 + 8},   // UYVY (why?)
-  {0x3D, 0x80 + 0x00},   // gamma enable, UV auto adjust, UYVY
-  {0xB0, 0x84}, // important
+  {0x12, 0x14},   			// QVGA, RGB
+  {0x8C, 0x00},   			// RGB444 Disable
+  {0x40, 0x10 + 0xc0},   	// RGB565, 00 - FF
+  {0x3A, 0x04 + 8},   		// UYVY (why?)
+  {0x3D, 0x80 + 0x00},   	// gamma enable, UV auto adjust, UYVY
+  {0xB0, 0x84}, 			// important, reserved register
 
   //brightness related
   {0x55, 0x40}, // brightness, bit7: 0 positive, 1 negative bits[6:0] brightness val
@@ -107,14 +148,14 @@ const uint8_t OV7670_reg[][2] = {
 #endif
 
   /* fps */
-//  {0x6B, 0x4a}, //PLL  x4
-  {0x11, 0x00}, // pre-scalar = 1/1
+  {0x6B, 0x7a}, //PLL  x4
+  {0x11, 0x01}, // pre-scalar = 1/1
 
   /* others */
   {0x1E, 0x31}, //mirror flip
 //  {0x42, 0x08}, // color bar
-
-  {REG_BATT, REG_BATT},
+#endif
+  {REG_END, REG_END}
 };
 
 

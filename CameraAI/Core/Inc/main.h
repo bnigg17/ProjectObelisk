@@ -59,6 +59,8 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define CAMERA_RESET_Pin GPIO_PIN_11
 #define CAMERA_RESET_GPIO_Port GPIOD
+#define CAMERA_PWDN_Pin GPIO_PIN_12
+#define CAMERA_PWDN_GPIO_Port GPIOD
 
 /* USER CODE BEGIN Private defines */
 

@@ -24,6 +24,7 @@
 #include "common.h"
 #include "ov7670.h"
 #include "putty.h"
+#include <stdlib.h>
 
 /* USER CODE END Includes */
 
@@ -46,7 +47,9 @@
 
 DCMI_HandleTypeDef hdcmi;
 DMA_HandleTypeDef hdma_dcmi;
+
 I2C_HandleTypeDef hi2c4;
+
 UART_HandleTypeDef huart4;
 
 /* USER CODE BEGIN PV */
@@ -66,6 +69,7 @@ static void MX_I2C4_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+uint32_t image[OV7670_WIDTH * OV7670_HEIGHT];
 /* USER CODE END 0 */
 
 /**
@@ -100,22 +104,21 @@ int main(void)
   MX_DCMI_Init();
   MX_UART4_Init();
   MX_I2C4_Init();
-
   /* USER CODE BEGIN 2 */
   init_putty(&huart4);
 
-  uint16_t image[OV7670_QVGA_WIDTH*OV7670_QVGA_HEIGHT];
-  for(int i = 0; i < OV7670_QVGA_WIDTH*OV7670_QVGA_HEIGHT; i++){
-	  image[i] = 0;
-  }
+//  uint16_t * image = (uint16_t *) malloc(OV7670_WIDTH*OV7670_HEIGHT);
+//  for(int i = 0; i < OV7670_WIDTH*OV7670_HEIGHT; i++){
+//	  image[i] = 0;
+//  }
   /* Camera Setup*/
-  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12, GPIO_PIN_RESET); //Camera PWDN to GND
-  ov7670_init(&hdcmi, &hdma_dcmi, &hi2c4, pData);
-  ov7670_config(OV7670_MODE_QVGA_RGB565);
+  ov7670_init(&hdcmi, &hdma_dcmi, &hi2c4, image);
+  ov7670_config();
 
 
   //ov7670_startCap(OV7670_CAP_SINGLE_FRAME, (uint32_t)image);
-  uint8_t * rxBuff;
+  uint8_t rxBuff[2];
+  uint8_t txBuff[16];
 
   /* USER CODE END 2 */
 
@@ -124,9 +127,14 @@ int main(void)
 
   while (1)
   {
-	  if(rxBuff[0] != -1){
-		  terminal_recieve(rxBuff);
+	  rxBuff[0] = 0xFF;	//Set to invalid number
+	  terminal_recieve(rxBuff, 2);
+	  if(rxBuff[0] == 0x00 || rxBuff[0] == 0x01){;
 		  ov7670_snapshot(rxBuff[0]);
+	  }
+	  else{
+		 snprintf((char *)txBuff, sizeof(txBuff), "S Fail\n");
+		 print_mod(txBuff, sizeof(txBuff));
 	  }
     /* USER CODE END WHILE */
 
@@ -291,7 +299,7 @@ static void MX_UART4_Init(void)
 
   /* USER CODE END UART4_Init 1 */
   huart4.Instance = UART4;
-  huart4.Init.BaudRate = 19200;
+  huart4.Init.BaudRate = 3000000;
   huart4.Init.WordLength = UART_WORDLENGTH_8B;
   huart4.Init.StopBits = UART_STOPBITS_1;
   huart4.Init.Parity = UART_PARITY_NONE;
@@ -347,7 +355,7 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOG_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOD, CAMERA_RESET_Pin|GPIO_PIN_12, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOD, CAMERA_RESET_Pin|CAMERA_PWDN_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pins : PB10 PB11 */
   GPIO_InitStruct.Pin = GPIO_PIN_10|GPIO_PIN_11;
@@ -357,8 +365,8 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Alternate = GPIO_AF4_I2C2;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : CAMERA_RESET_Pin PD12 */
-  GPIO_InitStruct.Pin = CAMERA_RESET_Pin|GPIO_PIN_12;
+  /*Configure GPIO pins : CAMERA_RESET_Pin CAMERA_PWDN_Pin */
+  GPIO_InitStruct.Pin = CAMERA_RESET_Pin|CAMERA_PWDN_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;

@@ -33,6 +33,7 @@ HAL_StatusTypeDef ov7670_config();
 HAL_StatusTypeDef ov7670_startCap(uint32_t capMode, uint32_t destAddress);
 HAL_StatusTypeDef ov7670_stopCap();
 void ov7670_registerCallback(void (*cbHsync)(uint32_t h), void (*cbVsync)(uint32_t v));
+void HAL_DCMI_FrameEventCallback(DCMI_HandleTypeDef *hdcmi);
 #if TEST_MODE
 void ov7670_snapshot(uint8_t mode);
 #endif

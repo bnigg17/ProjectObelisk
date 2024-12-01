@@ -48,7 +48,7 @@ void ov7670_init(DCMI_HandleTypeDef *p_hdcmi, DMA_HandleTypeDef *p_hdma_dcmi, I2
 
 HAL_StatusTypeDef ov7670_config()
 {
-  ov7670_stopCap();
+  //ov7670_stopCap();
   ov7670_write(0x12, 0x80);  // Software Reset
   HAL_Delay(30);
   uint8_t buffer[1];
@@ -78,10 +78,6 @@ HAL_StatusTypeDef ov7670_config()
 HAL_StatusTypeDef ov7670_startCap(uint32_t capMode, uint32_t destAddress)
 {
 	HAL_StatusTypeDef ret;
-	ret = ov7670_stopCap();
-	if(ret == HAL_ERROR){
-		print("OVO7607 stop capture error");
-	}
 	if (capMode == OV7670_CAP_CONTINUOUS) {
 		/* note: continuous mode automatically invokes DCMI, but DMA needs to be invoked manually */
 		//s_destAddressForContiuousMode = destAddress;
@@ -116,31 +112,30 @@ HAL_StatusTypeDef ov7670_stopCap()
 //  s_cbVsync = cbVsync;
 //}
 
-//void HAL_DCMI_FrameEventCallback(DCMI_HandleTypeDef *hdcmi)
-//{
-////	print("HERE Frame event");
-//////  printf("FRAME %d\n", HAL_GetTick());
-////  if(s_cbVsync)s_cbVsync(s_currentV);
-////  if(s_destAddressForContiuousMode != 0) {
-////    HAL_DMA_Start_IT(hdcmi->DMA_Handle, (uint32_t)&hdcmi->Instance->DR, s_destAddressForContiuousMode, OV7670_QVGA_WIDTH * OV7670_QVGA_HEIGHT/2);
-////  }
-//	print_image((uint16_t *)s_destAddressForContiuousMode);
-//	uint8_t tmp = s_currentH;
-//	s_currentV++;
-//	s_currentH = 0;
-//}
-
-void HAL_DCMI_VsyncEventCallback(DCMI_HandleTypeDef *hdcmi)
+void HAL_DCMI_FrameEventCallback(DCMI_HandleTypeDef *hdcmi)
 {
-//	uint8_t buffer[64];
+//	print("HERE Frame event");
+////  printf("FRAME %d\n", HAL_GetTick());
+//  if(s_cbVsync)s_cbVsync(s_currentV);
+//  if(s_destAddressForContiuousMode != 0) {
+//    HAL_DMA_Start_IT(hdcmi->DMA_Handle, (uint32_t)&hdcmi->Instance->DR, s_destAddressForContiuousMode, OV7670_QVGA_WIDTH * OV7670_QVGA_HEIGHT/2);
+//  }
 	ov7670_stopCap();
-	print_image((uint16_t *)s_destAddressForContiuousMode);
-//	snprintf((char*)buffer, sizeof(buffer), "Frame Complete - %ld Lines Read", s_currentH);
-//	print_mod(buffer, sizeof(buffer));
-	//uint8_t temp = s_currentH;
-	s_currentH = 0;
-	s_currentV = 0;
+	print_image(s_destAddressForContiuousMode);
+
 }
+
+//void HAL_DCMI_VsyncEventCallback(DCMI_HandleTypeDef *hdcmi)
+//{
+////	uint8_t buffer[64];
+//	ov7670_stopCap();
+//	print_image((uint16_t *)s_destAddressForContiuousMode);
+////	snprintf((char*)buffer, sizeof(buffer), "Frame Complete - %ld Lines Read", s_currentH);
+////	print_mod(buffer, sizeof(buffer));
+//	//uint8_t temp = s_currentH;
+//	s_currentH = 0;
+//	s_currentV = 0;
+//}
 
 //void HAL_DCMI_LineEventCallback(DCMI_HandleTypeDef *hdcmi)
 //{
@@ -185,10 +180,10 @@ void ov7670_snapshot(uint8_t mode){
 	/* TODO need to make register writes to test setting configurations */
 	switch(mode){
 	case 0:
-		ov7670_startCap(OV7670_CAP_SINGLE_FRAME, (uint32_t)s_destAddressForContiuousMode);
+		ov7670_startCap(OV7670_CAP_CONTINUOUS, (uint32_t)s_destAddressForContiuousMode);
 		//ov7670_write(OV7670_reg[i][0], OV7670_reg[i][1]);
 	case 1:
-		ov7670_startCap(OV7670_CAP_SINGLE_FRAME, (uint32_t)s_destAddressForContiuousMode);
+		ov7670_startCap(OV7670_CAP_CONTINUOUS, (uint32_t)s_destAddressForContiuousMode);
 		//ov7670_write(OV7670_reg[i][0], OV7670_reg[i][1]);
 	case 2:
 		//ov7670_write(OV7670_reg[i][0], OV7670_reg[i][1]);

@@ -38,7 +38,7 @@ const uint8_t OV7670_reg[][2] = {
 		{0x11, 0x04},    // CLKRC, 60 fps frame rate for QCIF 24MHz.
 		{0x12, 0x06},    // COM7, QCIF Preset, RGB mode.
 		{0x6B, 0x7a},	 // DBLV, PLL Multiplier by 4x
-		{0x40, 0xF0},	 // COM15, Output Range [00] to [FF], RGB 555 Output
+		{0x40, 0xD0},	 // COM15, Output Range [00] to [FF], RGB 555 Output
 		//{0x15, 0x20},	 // COM10, PCLK Gated by HREF (Data not transfered when on horizontal blank).
 		{0x14, 0x6A},	 // COM9, 128x AGC
 		{0x4F, 0xB3},	 // Matrix Coefficient 1

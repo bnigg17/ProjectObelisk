@@ -41,7 +41,7 @@ def test_rgb888(image):
             print("ERROR BLUE")
 
 # Replace 'COMx' with your port and set your baud rate
-ser = serial.Serial('/dev/ttyUSB0', 3000000, timeout=40)
+ser = serial.Serial('/dev/ttyUSB0', 3000000, timeout=3)
 # Ensure the directory for results exists
 output_directory = "test_results"
 os.makedirs(output_directory, exist_ok=True)
@@ -72,7 +72,7 @@ while True:
     ser.write(int(test_number).to_bytes(1, 'little') + b'\n')  # Send test number followed by newline
 
     print("Waiting for start character ('S') from MCU...")
-    time.sleep(.5)  # Allow time MCU
+    time.sleep(.1)  # Allow time MCU
     while True:
         byte = ser.read(1).decode('utf-8', errors='ignore')
         if byte == 'S':
@@ -82,6 +82,7 @@ while True:
     # Now read the specified number of bytes
     data = ser.read(num_bytes_to_read)
     print(f"Received {len(data)} bytes, test number: {test_number}.")
+    #print(data)
     if len(data) != num_bytes_to_read:
         print(data[1:5])    # Prints b'Fail', indicates invalid number
         print('UART ERROR')
@@ -99,8 +100,8 @@ while True:
                     pixel = image[row * width + col]  # Get the pixel
                     r, g, b = pixel  # Unpack the RGB values
                     row_string += f"({r},{g},{b}) "  # Add the formatted pixel to the row string
-                    #byte0, byte1 = pixel
-                    #row_string += f'(0x{byte0:02X}{byte1:02X})'
+                    # byte0, byte1 = pixel
+                    # row_string += f'(0x{byte0:02X}{byte1:02X})'
                 f.write(row_string.strip() + '\n')  # Write the row to file, stripping any trailing space
 
         print(f"Saved RGB data to {text_filename}.")

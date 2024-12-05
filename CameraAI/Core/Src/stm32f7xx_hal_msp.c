@@ -149,8 +149,6 @@ void HAL_DCMI_MspInit(DCMI_HandleTypeDef* hdcmi)
     GPIO_InitStruct.Alternate = GPIO_AF13_DCMI;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-    HAL_I2CEx_EnableFastModePlus(SYSCFG_PMC_I2C_PB9_FMP);
-
     /* DCMI DMA Init */
     /* DCMI Init */
     hdma_dcmi.Instance = DMA2_Stream1;

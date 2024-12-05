@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * @file    stm32h7xx_hal_tim.c
+  * @file    stm32f7xx_hal_tim.c
   * @author  MCD Application Team
   * @brief   TIM HAL module driver.
   *          This file provides firmware functions to manage the following
@@ -184,9 +184,9 @@ all interrupt callbacks are set to the corresponding weak functions:
   */
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32h7xx_hal.h"
+#include "stm32f7xx_hal.h"
 
-/** @addtogroup STM32H7xx_HAL_Driver
+/** @addtogroup STM32F7xx_HAL_Driver
   * @{
   */
 
@@ -4546,13 +4546,13 @@ HAL_StatusTypeDef HAL_TIM_OnePulse_ConfigChannel(TIM_HandleTypeDef *htim,  TIM_O
   *            @arg TIM_DMABASE_CCR3
   *            @arg TIM_DMABASE_CCR4
   *            @arg TIM_DMABASE_BDTR
+  *            @arg TIM_DMABASE_OR
   *            @arg TIM_DMABASE_CCMR3
   *            @arg TIM_DMABASE_CCR5
   *            @arg TIM_DMABASE_CCR6
-  *            @arg TIM_DMABASE_AF1
-  *            @arg TIM_DMABASE_AF2
-  *            @arg TIM_DMABASE_TISEL
-  *
+  *            @arg TIM_DMABASE_AF1  (*)
+  *            @arg TIM_DMABASE_AF2  (*)
+  *         (*) value not defined in all devices
   * @param  BurstRequestSrc TIM DMA Request sources
   *         This parameter can be one of the following values:
   *            @arg TIM_DMA_UPDATE: TIM update Interrupt source
@@ -4605,13 +4605,13 @@ HAL_StatusTypeDef HAL_TIM_DMABurst_WriteStart(TIM_HandleTypeDef *htim, uint32_t 
   *            @arg TIM_DMABASE_CCR3
   *            @arg TIM_DMABASE_CCR4
   *            @arg TIM_DMABASE_BDTR
+  *            @arg TIM_DMABASE_OR
   *            @arg TIM_DMABASE_CCMR3
   *            @arg TIM_DMABASE_CCR5
   *            @arg TIM_DMABASE_CCR6
-  *            @arg TIM_DMABASE_AF1
-  *            @arg TIM_DMABASE_AF2
-  *            @arg TIM_DMABASE_TISEL
-  *
+  *            @arg TIM_DMABASE_AF1  (*)
+  *            @arg TIM_DMABASE_AF2  (*)
+  *         (*) value not defined in all devices
   * @param  BurstRequestSrc TIM DMA Request sources
   *         This parameter can be one of the following values:
   *            @arg TIM_DMA_UPDATE: TIM update Interrupt source
@@ -4898,13 +4898,13 @@ HAL_StatusTypeDef HAL_TIM_DMABurst_WriteStop(TIM_HandleTypeDef *htim, uint32_t B
   *            @arg TIM_DMABASE_CCR3
   *            @arg TIM_DMABASE_CCR4
   *            @arg TIM_DMABASE_BDTR
+  *            @arg TIM_DMABASE_OR
   *            @arg TIM_DMABASE_CCMR3
   *            @arg TIM_DMABASE_CCR5
   *            @arg TIM_DMABASE_CCR6
-  *            @arg TIM_DMABASE_AF1
-  *            @arg TIM_DMABASE_AF2
-  *            @arg TIM_DMABASE_TISEL
-  *
+  *            @arg TIM_DMABASE_AF1  (*)
+  *            @arg TIM_DMABASE_AF2  (*)
+  *         (*) value not defined in all devices
   * @param  BurstRequestSrc TIM DMA Request sources
   *         This parameter can be one of the following values:
   *            @arg TIM_DMA_UPDATE: TIM update Interrupt source
@@ -4955,13 +4955,13 @@ HAL_StatusTypeDef HAL_TIM_DMABurst_ReadStart(TIM_HandleTypeDef *htim, uint32_t B
   *            @arg TIM_DMABASE_CCR3
   *            @arg TIM_DMABASE_CCR4
   *            @arg TIM_DMABASE_BDTR
+  *            @arg TIM_DMABASE_OR
   *            @arg TIM_DMABASE_CCMR3
   *            @arg TIM_DMABASE_CCR5
   *            @arg TIM_DMABASE_CCR6
-  *            @arg TIM_DMABASE_AF1
-  *            @arg TIM_DMABASE_AF2
-  *            @arg TIM_DMABASE_TISEL
-  *
+  *            @arg TIM_DMABASE_AF1  (*)
+  *            @arg TIM_DMABASE_AF2  (*)
+  *         (*) value not defined in all devices
   * @param  BurstRequestSrc TIM DMA Request sources
   *         This parameter can be one of the following values:
   *            @arg TIM_DMA_UPDATE: TIM update Interrupt source
@@ -5566,11 +5566,6 @@ HAL_StatusTypeDef HAL_TIM_ConfigClockSource(TIM_HandleTypeDef *htim, const TIM_C
     case TIM_CLOCKSOURCE_ITR1:
     case TIM_CLOCKSOURCE_ITR2:
     case TIM_CLOCKSOURCE_ITR3:
-    case TIM_CLOCKSOURCE_ITR4:
-    case TIM_CLOCKSOURCE_ITR5:
-    case TIM_CLOCKSOURCE_ITR6:
-    case TIM_CLOCKSOURCE_ITR7:
-    case TIM_CLOCKSOURCE_ITR8:
     {
       /* Check whether or not the timer instance supports internal trigger input */
       assert_param(IS_TIM_CLOCKSOURCE_ITRX_INSTANCE(htim->Instance));
@@ -7484,16 +7479,6 @@ static HAL_StatusTypeDef TIM_SlaveTimer_SetConfig(TIM_HandleTypeDef *htim,
     case TIM_TS_ITR1:
     case TIM_TS_ITR2:
     case TIM_TS_ITR3:
-    case TIM_TS_ITR4:
-    case TIM_TS_ITR5:
-    case TIM_TS_ITR6:
-    case TIM_TS_ITR7:
-    case TIM_TS_ITR8:
-    case TIM_TS_ITR9:
-    case TIM_TS_ITR10:
-    case TIM_TS_ITR11:
-    case TIM_TS_ITR12:
-    case TIM_TS_ITR13:
     {
       /* Check the parameter */
       assert_param(IS_TIM_CC2_INSTANCE(htim->Instance));
@@ -7786,23 +7771,10 @@ static void TIM_TI4_SetConfig(TIM_TypeDef *TIMx, uint32_t TIM_ICPolarity, uint32
   *            @arg TIM_TS_ITR1: Internal Trigger 1
   *            @arg TIM_TS_ITR2: Internal Trigger 2
   *            @arg TIM_TS_ITR3: Internal Trigger 3
-  *            @arg TIM_TS_ITR4: Internal Trigger 4  (*)
-  *            @arg TIM_TS_ITR5: Internal Trigger 5
-  *            @arg TIM_TS_ITR6: Internal Trigger 6
-  *            @arg TIM_TS_ITR7: Internal Trigger 7
-  *            @arg TIM_TS_ITR8: Internal Trigger 8  (*)
-  *            @arg TIM_TS_ITR9: Internal Trigger 9  (*)
-  *            @arg TIM_TS_ITR10: Internal Trigger 10 (*)
-  *            @arg TIM_TS_ITR11: Internal Trigger 11 (*)
-  *            @arg TIM_TS_ITR12: Internal Trigger 12 (*)
-  *            @arg TIM_TS_ITR13: Internal Trigger 13 (*)
   *            @arg TIM_TS_TI1F_ED: TI1 Edge Detector
   *            @arg TIM_TS_TI1FP1: Filtered Timer Input 1
   *            @arg TIM_TS_TI2FP2: Filtered Timer Input 2
   *            @arg TIM_TS_ETRF: External Trigger input
-  *
-  *       (*)  Value not defined in all devices.
-  *
   * @retval None
   */
 static void TIM_ITRx_SetConfig(TIM_TypeDef *TIMx, uint32_t InputTriggerSource)

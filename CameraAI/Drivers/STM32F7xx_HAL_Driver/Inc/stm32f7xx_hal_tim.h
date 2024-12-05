@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * @file    stm32h7xx_hal_tim.h
+  * @file    stm32f7xx_hal_tim.h
   * @author  MCD Application Team
   * @brief   Header file of TIM HAL module.
   ******************************************************************************
@@ -17,17 +17,17 @@
   */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef STM32H7xx_HAL_TIM_H
-#define STM32H7xx_HAL_TIM_H
+#ifndef STM32F7xx_HAL_TIM_H
+#define STM32F7xx_HAL_TIM_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32h7xx_hal_def.h"
+#include "stm32f7xx_hal_def.h"
 
-/** @addtogroup STM32H7xx_HAL_Driver
+/** @addtogroup STM32F7xx_HAL_Driver
   * @{
   */
 
@@ -284,20 +284,12 @@ typedef struct
 
   uint32_t BreakFilter;          /*!< Specifies the break input filter.This parameter can be a number between Min_Data = 0x0 and Max_Data = 0xF */
 
-#if defined(TIM_BDTR_BKBID)
-  uint32_t BreakAFMode;          /*!< Specifies the alternate function mode of the break input.This parameter can be a value of @ref TIM_Break_Input_AF_Mode */
-
-#endif /* TIM_BDTR_BKBID */
   uint32_t Break2State;          /*!< TIM Break2 State, This parameter can be a value of @ref TIM_Break2_Input_enable_disable */
 
   uint32_t Break2Polarity;       /*!< TIM Break2 input polarity, This parameter can be a value of @ref TIM_Break2_Polarity */
 
   uint32_t Break2Filter;         /*!< TIM break2 input filter.This parameter can be a number between Min_Data = 0x0 and Max_Data = 0xF */
 
-#if defined(TIM_BDTR_BKBID)
-  uint32_t Break2AFMode;         /*!< Specifies the alternate function mode of the break2 input.This parameter can be a value of @ref TIM_Break2_Input_AF_Mode */
-
-#endif /* TIM_BDTR_BKBID */
   uint32_t AutomaticOutput;      /*!< TIM Automatic Output Enable state, This parameter can be a value of @ref TIM_AOE_Bit_Set_Reset */
 
 } TIM_BreakDeadTimeConfigTypeDef;
@@ -485,6 +477,7 @@ typedef  void (*pTIM_CallbackTypeDef)(TIM_HandleTypeDef *htim);  /*!< pointer to
 #define TIM_DMABASE_BDTR                   0x00000011U
 #define TIM_DMABASE_DCR                    0x00000012U
 #define TIM_DMABASE_DMAR                   0x00000013U
+#define TIM_DMABASE_OR                     0x00000014U
 #define TIM_DMABASE_CCMR3                  0x00000015U
 #define TIM_DMABASE_CCR5                   0x00000016U
 #define TIM_DMABASE_CCR6                   0x00000017U
@@ -492,7 +485,6 @@ typedef  void (*pTIM_CallbackTypeDef)(TIM_HandleTypeDef *htim);  /*!< pointer to
 #define TIM_DMABASE_AF1                    0x00000018U
 #define TIM_DMABASE_AF2                    0x00000019U
 #endif /* TIM_BREAK_INPUT_SUPPORT */
-#define TIM_DMABASE_TISEL                  0x0000001AU
 /**
   * @}
   */
@@ -803,11 +795,6 @@ typedef  void (*pTIM_CallbackTypeDef)(TIM_HandleTypeDef *htim);  /*!< pointer to
 #define TIM_CLOCKSOURCE_ITR1        TIM_TS_ITR1          /*!< External clock source mode 1 (ITR1)                   */
 #define TIM_CLOCKSOURCE_ITR2        TIM_TS_ITR2          /*!< External clock source mode 1 (ITR2)                   */
 #define TIM_CLOCKSOURCE_ITR3        TIM_TS_ITR3          /*!< External clock source mode 1 (ITR3)                   */
-#define TIM_CLOCKSOURCE_ITR4        TIM_TS_ITR4          /*!< External clock source mode 1 (ITR4)                   */
-#define TIM_CLOCKSOURCE_ITR5        TIM_TS_ITR5          /*!< External clock source mode 1 (ITR5)                   */
-#define TIM_CLOCKSOURCE_ITR6        TIM_TS_ITR6          /*!< External clock source mode 1 (ITR6)                   */
-#define TIM_CLOCKSOURCE_ITR7        TIM_TS_ITR7          /*!< External clock source mode 1 (ITR7)                   */
-#define TIM_CLOCKSOURCE_ITR8        TIM_TS_ITR8          /*!< External clock source mode 1 (ITR8)                   */
 /**
   * @}
   */
@@ -900,17 +887,6 @@ typedef  void (*pTIM_CallbackTypeDef)(TIM_HandleTypeDef *htim);  /*!< pointer to
 /**
   * @}
   */
-#if  defined(TIM_BDTR_BKBID)
-
-/** @defgroup TIM_Break_Input_AF_Mode TIM Break Input Alternate Function Mode
-  * @{
-  */
-#define TIM_BREAK_AFMODE_INPUT             0x00000000U                          /*!< Break input BRK in input mode */
-#define TIM_BREAK_AFMODE_BIDIRECTIONAL     TIM_BDTR_BKBID                       /*!< Break input BRK in bidirectional mode */
-/**
-  * @}
-  */
-#endif /*TIM_BDTR_BKBID */
 
 /** @defgroup TIM_Break2_Input_enable_disable TIM Break input 2 Enable
   * @{
@@ -929,17 +905,6 @@ typedef  void (*pTIM_CallbackTypeDef)(TIM_HandleTypeDef *htim);  /*!< pointer to
 /**
   * @}
   */
-#if defined(TIM_BDTR_BKBID)
-
-/** @defgroup TIM_Break2_Input_AF_Mode TIM Break2 Input Alternate Function Mode
-  * @{
-  */
-#define TIM_BREAK2_AFMODE_INPUT            0x00000000U                          /*!< Break2 input BRK2 in input mode */
-#define TIM_BREAK2_AFMODE_BIDIRECTIONAL    TIM_BDTR_BK2BID                      /*!< Break2 input BRK2 in bidirectional mode */
-/**
-  * @}
-  */
-#endif /* TIM_BDTR_BKBID */
 
 /** @defgroup TIM_AOE_Bit_Set_Reset TIM Automatic Output Enable
   * @{
@@ -1049,16 +1014,6 @@ typedef  void (*pTIM_CallbackTypeDef)(TIM_HandleTypeDef *htim);  /*!< pointer to
 #define TIM_TS_ITR1          TIM_SMCR_TS_0                                                     /*!< Internal Trigger 1 (ITR1)              */
 #define TIM_TS_ITR2          TIM_SMCR_TS_1                                                     /*!< Internal Trigger 2 (ITR2)              */
 #define TIM_TS_ITR3          (TIM_SMCR_TS_0 | TIM_SMCR_TS_1)                                   /*!< Internal Trigger 3 (ITR3)              */
-#define TIM_TS_ITR4          (TIM_SMCR_TS_3)                                                   /*!< Internal Trigger 4 (ITR4)              */
-#define TIM_TS_ITR5          (TIM_SMCR_TS_0 | TIM_SMCR_TS_3)                                   /*!< Internal Trigger 5 (ITR5)              */
-#define TIM_TS_ITR6          (TIM_SMCR_TS_1 | TIM_SMCR_TS_3)                                   /*!< Internal Trigger 6 (ITR6)              */
-#define TIM_TS_ITR7          (TIM_SMCR_TS_0 | TIM_SMCR_TS_1 | TIM_SMCR_TS_3)                   /*!< Internal Trigger 7 (ITR7)              */
-#define TIM_TS_ITR8          (TIM_SMCR_TS_2 | TIM_SMCR_TS_3)                                   /*!< Internal Trigger 8 (ITR8)              */
-#define TIM_TS_ITR9          (TIM_SMCR_TS_0 | TIM_SMCR_TS_2 | TIM_SMCR_TS_3)                   /*!< Internal Trigger 9 (ITR9)              */
-#define TIM_TS_ITR10         (TIM_SMCR_TS_1 | TIM_SMCR_TS_2 | TIM_SMCR_TS_3)                   /*!< Internal Trigger 10 (ITR10)            */
-#define TIM_TS_ITR11         (TIM_SMCR_TS_0 | TIM_SMCR_TS_1 | TIM_SMCR_TS_2 | TIM_SMCR_TS_3)   /*!< Internal Trigger 11 (ITR11)            */
-#define TIM_TS_ITR12         (TIM_SMCR_TS_4)                                                   /*!< Internal Trigger 12 (ITR12)            */
-#define TIM_TS_ITR13         (TIM_SMCR_TS_0 | TIM_SMCR_TS_4)                                   /*!< Internal Trigger 13 (ITR13)            */
 #define TIM_TS_TI1F_ED       TIM_SMCR_TS_2                                                     /*!< TI1 Edge Detector (TI1F_ED)            */
 #define TIM_TS_TI1FP1        (TIM_SMCR_TS_0 | TIM_SMCR_TS_2)                                   /*!< Filtered Timer Input 1 (TI1FP1)        */
 #define TIM_TS_TI2FP2        (TIM_SMCR_TS_1 | TIM_SMCR_TS_2)                                   /*!< Filtered Timer Input 2 (TI2FP2)        */
@@ -1788,6 +1743,32 @@ mode.
 #define IS_TIM_CLEARINPUT_SOURCE(__MODE__)  (((__MODE__) == TIM_CLEARINPUTSOURCE_NONE)      || \
                                              ((__MODE__) == TIM_CLEARINPUTSOURCE_ETR))
 
+#if defined(TIM_AF1_BKINE)&&defined(TIM_AF2_BKINE)
+#define IS_TIM_DMA_BASE(__BASE__) (((__BASE__) == TIM_DMABASE_CR1)    || \
+                                   ((__BASE__) == TIM_DMABASE_CR2)    || \
+                                   ((__BASE__) == TIM_DMABASE_SMCR)   || \
+                                   ((__BASE__) == TIM_DMABASE_DIER)   || \
+                                   ((__BASE__) == TIM_DMABASE_SR)     || \
+                                   ((__BASE__) == TIM_DMABASE_EGR)    || \
+                                   ((__BASE__) == TIM_DMABASE_CCMR1)  || \
+                                   ((__BASE__) == TIM_DMABASE_CCMR2)  || \
+                                   ((__BASE__) == TIM_DMABASE_CCER)   || \
+                                   ((__BASE__) == TIM_DMABASE_CNT)    || \
+                                   ((__BASE__) == TIM_DMABASE_PSC)    || \
+                                   ((__BASE__) == TIM_DMABASE_ARR)    || \
+                                   ((__BASE__) == TIM_DMABASE_RCR)    || \
+                                   ((__BASE__) == TIM_DMABASE_CCR1)   || \
+                                   ((__BASE__) == TIM_DMABASE_CCR2)   || \
+                                   ((__BASE__) == TIM_DMABASE_CCR3)   || \
+                                   ((__BASE__) == TIM_DMABASE_CCR4)   || \
+                                   ((__BASE__) == TIM_DMABASE_BDTR)   || \
+                                   ((__BASE__) == TIM_DMABASE_OR)     || \
+                                   ((__BASE__) == TIM_DMABASE_CCMR3)  || \
+                                   ((__BASE__) == TIM_DMABASE_CCR5)   || \
+                                   ((__BASE__) == TIM_DMABASE_CCR6)   || \
+                                   ((__BASE__) == TIM_DMABASE_AF1)    || \
+                                   ((__BASE__) == TIM_DMABASE_AF2))
+#else
 #define IS_TIM_DMA_BASE(__BASE__) (((__BASE__) == TIM_DMABASE_CR1)   || \
                                    ((__BASE__) == TIM_DMABASE_CR2)   || \
                                    ((__BASE__) == TIM_DMABASE_SMCR)  || \
@@ -1806,13 +1787,11 @@ mode.
                                    ((__BASE__) == TIM_DMABASE_CCR3)  || \
                                    ((__BASE__) == TIM_DMABASE_CCR4)  || \
                                    ((__BASE__) == TIM_DMABASE_BDTR)  || \
+                                   ((__BASE__) == TIM_DMABASE_OR)    || \
                                    ((__BASE__) == TIM_DMABASE_CCMR3) || \
                                    ((__BASE__) == TIM_DMABASE_CCR5)  || \
-                                   ((__BASE__) == TIM_DMABASE_CCR6)  || \
-                                   ((__BASE__) == TIM_DMABASE_AF1)   || \
-                                   ((__BASE__) == TIM_DMABASE_AF2)   || \
-                                   ((__BASE__) == TIM_DMABASE_TISEL))
-
+                                   ((__BASE__) == TIM_DMABASE_CCR6))
+#endif /* TIM_AF1_BKINE && TIM_AF1_BKINE */
 
 #define IS_TIM_EVENT_SOURCE(__SOURCE__) ((((__SOURCE__) & 0xFFFFFE00U) == 0x00000000U) && ((__SOURCE__) != 0x00000000U))
 
@@ -1947,24 +1926,12 @@ mode.
 
 #define IS_TIM_BREAK_POLARITY(__POLARITY__) (((__POLARITY__) == TIM_BREAKPOLARITY_LOW) || \
                                              ((__POLARITY__) == TIM_BREAKPOLARITY_HIGH))
-#if  defined(TIM_BDTR_BKBID)
-
-#define IS_TIM_BREAK_AFMODE(__AFMODE__) (((__AFMODE__) == TIM_BREAK_AFMODE_INPUT) || \
-                                         ((__AFMODE__) == TIM_BREAK_AFMODE_BIDIRECTIONAL))
-
-#endif /* TIM_BDTR_BKBID */
 
 #define IS_TIM_BREAK2_STATE(__STATE__)     (((__STATE__) == TIM_BREAK2_ENABLE) || \
                                             ((__STATE__) == TIM_BREAK2_DISABLE))
 
 #define IS_TIM_BREAK2_POLARITY(__POLARITY__) (((__POLARITY__) == TIM_BREAK2POLARITY_LOW) || \
                                               ((__POLARITY__) == TIM_BREAK2POLARITY_HIGH))
-#if  defined(TIM_BDTR_BKBID)
-
-#define IS_TIM_BREAK2_AFMODE(__AFMODE__) (((__AFMODE__) == TIM_BREAK2_AFMODE_INPUT) || \
-                                          ((__AFMODE__) == TIM_BREAK2_AFMODE_BIDIRECTIONAL))
-
-#endif /* TIM_BDTR_BKBID */
 
 #define IS_TIM_AUTOMATIC_OUTPUT_STATE(__STATE__) (((__STATE__) == TIM_AUTOMATICOUTPUT_ENABLE) || \
                                                   ((__STATE__) == TIM_AUTOMATICOUTPUT_DISABLE))
@@ -2028,29 +1995,15 @@ mode.
                                                  ((__SELECTION__) == TIM_TS_ITR1)    || \
                                                  ((__SELECTION__) == TIM_TS_ITR2)    || \
                                                  ((__SELECTION__) == TIM_TS_ITR3)    || \
-                                                 ((__SELECTION__) == TIM_TS_ITR4)    || \
-                                                 ((__SELECTION__) == TIM_TS_ITR5)    || \
-                                                 ((__SELECTION__) == TIM_TS_ITR6)    || \
-                                                 ((__SELECTION__) == TIM_TS_ITR7)    || \
-                                                 ((__SELECTION__) == TIM_TS_ITR8)    || \
-                                                 ((__SELECTION__) == TIM_TS_ITR12)   || \
-                                                 ((__SELECTION__) == TIM_TS_ITR13)   || \
                                                  ((__SELECTION__) == TIM_TS_TI1F_ED) || \
                                                  ((__SELECTION__) == TIM_TS_TI1FP1)  || \
                                                  ((__SELECTION__) == TIM_TS_TI2FP2)  || \
                                                  ((__SELECTION__) == TIM_TS_ETRF))
 
-#define IS_TIM_INTERNAL_TRIGGEREVENT_SELECTION(__SELECTION__) (((__SELECTION__) == TIM_TS_ITR0)  || \
-                                                               ((__SELECTION__) == TIM_TS_ITR1)  || \
-                                                               ((__SELECTION__) == TIM_TS_ITR2)  || \
-                                                               ((__SELECTION__) == TIM_TS_ITR3)  || \
-                                                               ((__SELECTION__) == TIM_TS_ITR4)  || \
-                                                               ((__SELECTION__) == TIM_TS_ITR5)  || \
-                                                               ((__SELECTION__) == TIM_TS_ITR6)  || \
-                                                               ((__SELECTION__) == TIM_TS_ITR7)  || \
-                                                               ((__SELECTION__) == TIM_TS_ITR8)  || \
-                                                               ((__SELECTION__) == TIM_TS_ITR12) || \
-                                                               ((__SELECTION__) == TIM_TS_ITR13) || \
+#define IS_TIM_INTERNAL_TRIGGEREVENT_SELECTION(__SELECTION__) (((__SELECTION__) == TIM_TS_ITR0) || \
+                                                               ((__SELECTION__) == TIM_TS_ITR1) || \
+                                                               ((__SELECTION__) == TIM_TS_ITR2) || \
+                                                               ((__SELECTION__) == TIM_TS_ITR3) || \
                                                                ((__SELECTION__) == TIM_TS_NONE))
 
 #define IS_TIM_TRIGGERPOLARITY(__POLARITY__)   (((__POLARITY__) == TIM_TRIGGERPOLARITY_INVERTED   ) || \
@@ -2186,7 +2139,7 @@ mode.
 /* End of private macros -----------------------------------------------------*/
 
 /* Include TIM HAL Extended module */
-#include "stm32h7xx_hal_tim_ex.h"
+#include "stm32f7xx_hal_tim_ex.h"
 
 /* Exported functions --------------------------------------------------------*/
 /** @addtogroup TIM_Exported_Functions TIM Exported Functions
@@ -2463,4 +2416,4 @@ void TIM_ResetCallback(TIM_HandleTypeDef *htim);
 }
 #endif
 
-#endif /* STM32H7xx_HAL_TIM_H */
+#endif /* STM32F7xx_HAL_TIM_H */

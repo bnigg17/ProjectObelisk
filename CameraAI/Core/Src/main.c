@@ -24,7 +24,6 @@
 #include "common.h"
 #include "ov7670.h"
 #include "putty.h"
-#include <stdlib.h>
 
 /* USER CODE END Includes */
 
@@ -115,8 +114,6 @@ int main(void)
   ov7670_init(&hdcmi, &hdma_dcmi, &hi2c4, image);
   ov7670_config();
 
-
-  //ov7670_startCap(OV7670_CAP_SINGLE_FRAME, (uint32_t)image);
   uint8_t rxBuff[2];
   uint8_t txBuff[16];
 
@@ -131,6 +128,7 @@ int main(void)
 	  terminal_recieve(rxBuff, 2);
 	  if(rxBuff[0] == 0x00 || rxBuff[0] == 0x01){;
 		  ov7670_snapshot(rxBuff[0]);
+		  //HAL_Delay(1000);
 	  }
 	  else{
 		 snprintf((char *)txBuff, sizeof(txBuff), "S Fail\n");
@@ -299,7 +297,7 @@ static void MX_UART4_Init(void)
 
   /* USER CODE END UART4_Init 1 */
   huart4.Instance = UART4;
-  huart4.Init.BaudRate = 3000000;
+  huart4.Init.BaudRate = 19200;
   huart4.Init.WordLength = UART_WORDLENGTH_8B;
   huart4.Init.StopBits = UART_STOPBITS_1;
   huart4.Init.Parity = UART_PARITY_NONE;
@@ -346,24 +344,15 @@ static void MX_GPIO_Init(void)
 /* USER CODE END MX_GPIO_Init_1 */
 
   /* GPIO Ports Clock Enable */
-  __HAL_RCC_GPIOH_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOF_CLK_ENABLE();
-  __HAL_RCC_GPIOB_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
   __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOG_CLK_ENABLE();
+  __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOD, CAMERA_RESET_Pin|CAMERA_PWDN_Pin, GPIO_PIN_RESET);
-
-  /*Configure GPIO pins : PB10 PB11 */
-  GPIO_InitStruct.Pin = GPIO_PIN_10|GPIO_PIN_11;
-  GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-  GPIO_InitStruct.Alternate = GPIO_AF4_I2C2;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /*Configure GPIO pins : CAMERA_RESET_Pin CAMERA_PWDN_Pin */
   GPIO_InitStruct.Pin = CAMERA_RESET_Pin|CAMERA_PWDN_Pin;

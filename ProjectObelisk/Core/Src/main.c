@@ -554,7 +554,7 @@ void format_image(uint8_t * p_img){
 
 void send_image(uint8_t *formatted_image, uint32_t image_size) {
     uint32_t bytes_sent = 0;
-    uint8_t rxBuff[2];
+    uint8_t rxBuff[1];
 
     while (bytes_sent < image_size) {
         uint32_t bytes_to_send = image_size - bytes_sent;

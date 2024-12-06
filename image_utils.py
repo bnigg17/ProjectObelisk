@@ -71,7 +71,7 @@ while True:
     # Send the test number to the MCU
     ser.write(int(test_number).to_bytes(1, 'little') + b'\n')  # Send test number followed by newline
 
-    print("Waiting for start character ('S') from MCU...")
+    print("Waiting for start character ('S') from MCU...") 
     time.sleep(.1)  # Allow time MCU
     while True:
         byte = ser.read(1).decode('utf-8', errors='ignore')

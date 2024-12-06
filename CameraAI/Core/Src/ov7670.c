@@ -62,9 +62,11 @@ HAL_StatusTypeDef ov7670_config()
   }
 
   /* Set OV7670 Registers */
+  uint8_t data;
   for(int i = 0; OV7670_reg[i][0] != REG_END; i++) {
     ret |= ov7670_write(OV7670_reg[i][0], OV7670_reg[i][1]);
     HAL_Delay(1);
+    ret |= ov7670_read(OV7670_reg[i][0], &data);
   }
   if(ret == HAL_ERROR){
 	  print("OV7670 Config Fail");

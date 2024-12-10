@@ -72,8 +72,8 @@ def identify_whites(img):
     return (r_avg + g_avg + b_avg), [r_avg, g_avg, b_avg], off_count
 
 def unpackage_images():
-    training_one = Image.open('C:\\Users\\bebom\\Desktop\\ECE395\\camera_AI\\data\\training_1.png')
-    training_two = Image.open('C:\\Users\\bebom\\Desktop\\ECE395\\camera_AI\\data\\training_2.png')
+    training_one = Image.open('/home/bnigg17/Documents/ECE395/Obelisk_RaspPI/training_1.png')
+    training_two = Image.open('/home/bnigg17/Documents/ECE395/Obelisk_RaspPI/training_2.png')
 
     training_pictures = [training_one, training_two]
 
@@ -86,9 +86,15 @@ def decide(capture):
     color_avg1, color_avgs1, off_count1= identify_whites(training_pictures[0])
     color_avg2, color_avgs2, off_count2= identify_whites(training_pictures[1])
     color_avg, color_avgs, off_count = (color_avg1+color_avg2)/2, [(color_avgs1[0]+color_avgs2[0])/2, (color_avgs1[1]+color_avgs2[1])/2, (color_avgs1[2]+color_avgs2[2])/2], (off_count1 + off_count2)/2
-    color_epsilon = max([abs(color_avgs1[0]-color_avgs2[0]), abs(color_avgs1[1]-color_avgs2[1]), abs(color_avgs1[2]-color_avgs2[2])]) + 0.1
-    overall_epsilon = abs(color_avg1 - color_avg2) + 0.1
+    color_epsilon = max([abs(color_avgs1[0]-color_avgs2[0]), abs(color_avgs1[1]-color_avgs2[1]), abs(color_avgs1[2]-color_avgs2[2])]) + 5
+    overall_epsilon = abs(color_avg1 - color_avg2) + 5
     off_count_epsilon = abs(off_count1 - off_count2) + 5000
+    print("color_avg :", color_avg)
+    print("color_avgs :", color_avgs)
+    print("off_count :", off_count)
+    print("color_ep :", color_epsilon)
+    print("overall_ep :", overall_epsilon)
+    print("off_cnt_ep :", off_count_epsilon)
    
     # identify color averages for the current capture, with some protection
     average, c_averages, cur_off_count = 0, [0,0,0], 0
@@ -99,18 +105,13 @@ def decide(capture):
             sys.exit(1)
         print("Edge detection and color average capture failed")
     
+    print("avg :", average)
+    print("c_avgs :", c_averages)
+    print("cur_off_counts :", cur_off_count)
+    
     # test the captured image
     if color_test(average, c_averages, cur_off_count, color_avg, color_avgs, off_count, overall_epsilon, color_epsilon, off_count_epsilon):
         return True
     else:
         return False
         
-
-def main():
-    blue_cube_test = Image.open('C:\\Users\\bebom\\Desktop\\ECE395\\camera_AI\\data\\blue_cube_test.png')
-    print(decide(blue_cube_test))
-    return
-
-
-if __name__ == "__main__":
-    main()

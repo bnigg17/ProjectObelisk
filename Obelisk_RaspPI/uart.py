@@ -26,7 +26,7 @@ def create_image_from_bytes(bytes):
 def request_capture():
     # Replace 'COMx' with your port and set your baud rate
     # '/dev/tyyXXXX' for linux
-    ser = serial.Serial('COM4', 500_000, timeout=1)
+    ser = serial.Serial('/dev/ttyACM0', 500_000, timeout=1)
 
     FRAME_BUFFER_SIZE = 320*240*2
     IN_BETWEEN_SIZE = 18
@@ -91,13 +91,6 @@ def request_capture():
     # Close the serial connection
     ser.close()
 
-    new_img = create_image_from_bytes(frames[6]) #CAPTURE 5
+    new_img = create_image_from_bytes(frames[5]) #CAPTURE 5
     return new_img
     
-def main():
-    capture = request_capture()
-    capture.save("capture.png")
-    return
-        
-if __name__ == "__main__":
-    main()

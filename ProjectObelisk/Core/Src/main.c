@@ -114,13 +114,13 @@ Camera_settings OV7670_settings={
 #define QQCIF CIF/4
 
 // Global Variables ---------------------------------
-uint32_t image_data[QCIF/2];	// Two pixels per word
-uint8_t formated_img[QCIF*3];	// Three bytes per pixel
+//uint32_t image_data[10];	// Two pixels per word
+//uint8_t formated_img[QCIF*3];	// Three bytes per pixel
 uint16_t width, height;
 uint8_t format;
 
-static void format_image(uint8_t * p_img);
-static void send_image(uint8_t *formatted_image, uint32_t image_size);
+//static void format_image(uint8_t * p_img);
+//static void send_image(uint8_t *formatted_image, uint32_t image_size);
 
 /* USER CODE END 0 */
 
@@ -162,20 +162,20 @@ int main(void)
   MX_SPI1_Init();
   MX_UART4_Init();
   /* USER CODE BEGIN 2 */
-  OV7670_Power(DISABLE);
-  OV7670_Init(&hdcmi, &hdma_dcmi, &hi2c1);
+//  OV7670_Power(DISABLE);
+//  OV7670_Init(&hdcmi, &hdma_dcmi, &hi2c1);
+//
+//  OV7670_PowerUp();
+//  OV7670_UpdateSettings(OV7670_settings);
+//  OV7670_SetFrameRate(XCLK_DIV(1), PLL_x4);
+//  HAL_Delay(10);
+//
+//  //OV7670_Start(CONTINUOUS, image_data);
+//  OV7670_getImageInfo(&width,&height,&format);
+//  HAL_Delay(100);
 
-  OV7670_PowerUp();
-  OV7670_UpdateSettings(OV7670_settings);
-  OV7670_SetFrameRate(XCLK_DIV(1), PLL_x4);
-  HAL_Delay(10);
-
-  OV7670_Start(CONTINUOUS, image_data);
-  OV7670_getImageInfo(&width,&height,&format);
-  HAL_Delay(100);
-
-  uint8_t rxBuff[2];
-  uint8_t txBuff[16];
+//  uint8_t rxBuff[2];
+//  uint8_t txBuff[16];
 
   /* USER CODE END 2 */
 
@@ -183,20 +183,20 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	rxBuff[0] = 0xFF;	//Set to invalid number
-	(void)HAL_UART_Receive(&huart4, rxBuff, sizeof(rxBuff), HAL_MAX_DELAY);
-	if(rxBuff[0] == 0x00 || rxBuff[0] == 0x01)
-	{
-		while(!frame_ready);
-		format_image(formated_img);
-		send_image(formated_img, width*height*3);
-		frame_ready = 0;
-	}
-	else
-	{
-		snprintf((char *)txBuff, sizeof(txBuff), "S Fail\n");
-	    (void)HAL_UART_Transmit(&huart4, txBuff, sizeof(txBuff), HAL_MAX_DELAY);
-	}
+//	rxBuff[0] = 0xFF;	//Set to invalid number
+//	(void)HAL_UART_Receive(&huart4, rxBuff, sizeof(rxBuff), HAL_MAX_DELAY);
+//	if(rxBuff[0] == 0x00 || rxBuff[0] == 0x01)
+//	{
+//		while(!frame_ready);
+//		format_image(formated_img);
+//		send_image(formated_img, width*height*3);
+//		frame_ready = 0;
+//	}
+//	else
+//	{
+//		snprintf((char *)txBuff, sizeof(txBuff), "S Fail\n");
+//	    (void)HAL_UART_Transmit(&huart4, txBuff, sizeof(txBuff), HAL_MAX_DELAY);
+//	}
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -507,82 +507,82 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-void format_image(uint8_t * p_img){
-	uint8_t * buff = p_img;
-	uint32_t word = 0;
-	uint32_t length = 0;
-	//uint32_t num_bytes = width * height;
-	for (uint16_t i = 0; i < width/2; i++) {
-		for(uint16_t j = 0; j < height; j++){
-			word = image_data[j+i*(width/2)];
-			if(format == YUV422){
-				uint16_t Y2 =(word>>24)&0x00FF;
-				uint16_t U  =((word>>16)&0x00FF)-128;
-				uint16_t Y1 =(word>>8)&0x00FF;
-				uint16_t V  =(word&0x00FF)-128;
-				// Convert to RBG888
-				uint32_t rgb = YUVtoRGB888(Y1, U, V);
-				buff[length++] = (uint8_t)(rgb>>24 & 0x00FF);
-				buff[length++] = (uint8_t)(rgb>>16 & 0x00FF);
-				buff[length++] = (uint8_t)(rgb>>8 & 0x00FF);
-				rgb = YUVtoRGB888(Y2, U, V);
-				buff[length++] = (uint8_t)(rgb>>24 & 0x00FF);
-				buff[length++] = (uint8_t)(rgb>>16 & 0x00FF);
-				buff[length++] = (uint8_t)(rgb>>8 & 0x00FF);
-			}
-			else{	// RGB565
-		    	uint8_t R = (uint8_t)(((word>>16) & 0xF800) >> 11);   	// 5 bits
-				uint8_t G = (uint8_t)(((word>>16) & 0x07E0) >> 5);    	// 6 bits
-				uint8_t B = (uint8_t)((word>>16) & 0x001F);           	// 5 bits
-				buff[length++] = R;
-				buff[length++] = G;
-				buff[length++] = B;
-
-		    	R = (uint8_t)((word & 0xF800) >> 11);   				// 5 bits
-				G = (uint8_t)((word & 0x07E0) >> 5);    				// 6 bits
-				B = (uint8_t)(word & 0x001F);           				// 5 bits
-				buff[length++] = R;
-				buff[length++] = G;
-				buff[length++] = B;
-
-			}
-		}
-	}
-}
-
-#define CHUNK_SIZE 240  // Max chunk size (must be a multiple of 3 for RGB)
-
-void send_image(uint8_t *formatted_image, uint32_t image_size) {
-    uint32_t bytes_sent = 0;
-    uint8_t rxBuff[1];
-
-    while (bytes_sent < image_size) {
-        uint32_t bytes_to_send = image_size - bytes_sent;
-
-        // Ensure chunk does not exceed CHUNK_SIZE
-        if (bytes_to_send > CHUNK_SIZE) {
-            bytes_to_send = CHUNK_SIZE;
-        }
-
-        // Send the current chunk over UART
-        HAL_StatusTypeDef status = HAL_UART_Transmit(&huart4, &formatted_image[bytes_sent], bytes_to_send, HAL_MAX_DELAY);
-
-        // Handle transmission errors
-        if (status != HAL_OK) {
-            // Handle error (e.g., retry, log, or return)
-            return;
-        }
-        //TODO: Add handshaking with python
-        HAL_StatusTypeDef ret = HAL_UART_Receive(&huart4, rxBuff, sizeof(rxBuff), HAL_MAX_DELAY);
-        if (ret != HAL_OK || rxBuff[0] != 0x0) {
-            // Handle error (e.g., retry, log, or return)
-            return;
-        }
-
-        // Increment the sent byte counter
-        bytes_sent += bytes_to_send;
-    }
-}
+//void format_image(uint8_t * p_img){
+//	uint8_t * buff = p_img;
+//	uint32_t word = 0;
+//	uint32_t length = 0;
+//	//uint32_t num_bytes = width * height;
+//	for (uint16_t i = 0; i < width/2; i++) {
+//		for(uint16_t j = 0; j < height; j++){
+//			word = image_data[j+i*(width/2)];
+//			if(format == YUV422){
+//				uint16_t Y2 =(word>>24)&0x00FF;
+//				uint16_t U  =((word>>16)&0x00FF)-128;
+//				uint16_t Y1 =(word>>8)&0x00FF;
+//				uint16_t V  =(word&0x00FF)-128;
+//				// Convert to RBG888
+//				uint32_t rgb = YUVtoRGB888(Y1, U, V);
+//				buff[length++] = (uint8_t)(rgb>>24 & 0x00FF);
+//				buff[length++] = (uint8_t)(rgb>>16 & 0x00FF);
+//				buff[length++] = (uint8_t)(rgb>>8 & 0x00FF);
+//				rgb = YUVtoRGB888(Y2, U, V);
+//				buff[length++] = (uint8_t)(rgb>>24 & 0x00FF);
+//				buff[length++] = (uint8_t)(rgb>>16 & 0x00FF);
+//				buff[length++] = (uint8_t)(rgb>>8 & 0x00FF);
+//			}
+//			else{	// RGB565
+//		    	uint8_t R = (uint8_t)(((word>>16) & 0xF800) >> 11);   	// 5 bits
+//				uint8_t G = (uint8_t)(((word>>16) & 0x07E0) >> 5);    	// 6 bits
+//				uint8_t B = (uint8_t)((word>>16) & 0x001F);           	// 5 bits
+//				buff[length++] = R;
+//				buff[length++] = G;
+//				buff[length++] = B;
+//
+//		    	R = (uint8_t)((word & 0xF800) >> 11);   				// 5 bits
+//				G = (uint8_t)((word & 0x07E0) >> 5);    				// 6 bits
+//				B = (uint8_t)(word & 0x001F);           				// 5 bits
+//				buff[length++] = R;
+//				buff[length++] = G;
+//				buff[length++] = B;
+//
+//			}
+//		}
+//	}
+//}
+//
+//#define CHUNK_SIZE 240  // Max chunk size (must be a multiple of 3 for RGB)
+//
+//void send_image(uint8_t *formatted_image, uint32_t image_size) {
+//    uint32_t bytes_sent = 0;
+//    uint8_t rxBuff[1];
+//
+//    while (bytes_sent < image_size) {
+//        uint32_t bytes_to_send = image_size - bytes_sent;
+//
+//        // Ensure chunk does not exceed CHUNK_SIZE
+//        if (bytes_to_send > CHUNK_SIZE) {
+//            bytes_to_send = CHUNK_SIZE;
+//        }
+//
+//        // Send the current chunk over UART
+//        HAL_StatusTypeDef status = HAL_UART_Transmit(&huart4, &formatted_image[bytes_sent], bytes_to_send, HAL_MAX_DELAY);
+//
+//        // Handle transmission errors
+//        if (status != HAL_OK) {
+//            // Handle error (e.g., retry, log, or return)
+//            return;
+//        }
+//        //TODO: Add handshaking with python
+//        HAL_StatusTypeDef ret = HAL_UART_Receive(&huart4, rxBuff, sizeof(rxBuff), HAL_MAX_DELAY);
+//        if (ret != HAL_OK || rxBuff[0] != 0x0) {
+//            // Handle error (e.g., retry, log, or return)
+//            return;
+//        }
+//
+//        // Increment the sent byte counter
+//        bytes_sent += bytes_to_send;
+//    }
+//}
 
 /* USER CODE END 4 */
 

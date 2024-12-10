@@ -92,7 +92,10 @@ void OV7670_Config(const uint8_t params[][2])
 {
 	for(int i = 0; params[i][0] != 0xFF; i++)
 	{
+		uint8_t data;
+		OV7670_ReadSCCB(params[i][0], &data);
 		OV7670_WriteSCCB(params[i][0], params[i][1]);
+		OV7670_ReadSCCB(params[i][0], &data);
 		HAL_Delay(1);
 	}
 }

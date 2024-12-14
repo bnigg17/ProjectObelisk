@@ -30,7 +30,7 @@ def request_capture():
 
     FRAME_BUFFER_SIZE = 320*240*2
     IN_BETWEEN_SIZE = 18
-    NUM_FRAMES_READ = 8 # change its size to see different results
+    NUM_FRAMES_READ = 7  # change its size to see different results
 
     print("UART ready for transmition")
 
@@ -70,7 +70,8 @@ def request_capture():
                 if(within_frame_flag):
                     if(sync_counter > 5):
                         cur_frame_index += 1
-                        frames[current_frame].append(byte)
+                        if(current_frame <= NUM_FRAMES_READ):
+                            frames[current_frame].append(byte)
                         if(cur_frame_index >= 153600):
                             cur_frame_index = 0
                             within_frame_flag = False
@@ -91,6 +92,6 @@ def request_capture():
     # Close the serial connection
     ser.close()
 
-    new_img = create_image_from_bytes(frames[5]) #CAPTURE 5
+    new_img = create_image_from_bytes(frames[6]) #CAPTURE 6
     return new_img
     

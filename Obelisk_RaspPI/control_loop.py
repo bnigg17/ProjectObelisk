@@ -3,6 +3,7 @@ import scipy.signal as sg
 import sys
 import numpy as np
 import serial
+import os
 from cameraAI import *
 from gpio import *
 from uart import *
@@ -13,6 +14,7 @@ BUTTON_PIN_2 = 23
 BUTTON_PIN_3 = 24
 GREEN_LED_PIN = 17
 RED_LED_PIN = 27
+BLUE_LED_PIN = 22
 
 def main():
     shutdown()
@@ -22,11 +24,12 @@ def main():
     init_button()
     init_LED()
     set_LED(GREEN_LED_PIN, 1)
-    time.sleep(1)
-    set_LED(GREEN_LED_PIN, 0)
     set_LED(RED_LED_PIN, 1)
-    time.sleep(1)
+    set_LED(BLUE_LED_PIN, 1)
+    time.sleep(2)
+    set_LED(GREEN_LED_PIN, 0)
     set_LED(RED_LED_PIN, 0)
+    set_LED(BLUE_LED_PIN, 0)
     
     # Loop
     while True:
@@ -34,8 +37,9 @@ def main():
             button_key = wait_for_button()
             print("button pressed: ", button_key)
             if button_key == 0: # Run AI on a capture
-                set_LED(GREEN_LED_PIN, 1)
-                set_LED(RED_LED_PIN, 1)
+                set_LED(GREEN_LED_PIN, 0)
+                set_LED(RED_LED_PIN, 0)
+                set_LED(BLUE_LED_PIN, 1)
                 capture = request_capture()
                 if(decide(capture)):
                     # Then the capture was accepted by the AI model...
@@ -60,20 +64,25 @@ def main():
                     time.sleep(.5)
                     set_LED(RED_LED_PIN, 1)
                     control_servo(pwm, 0)
+                set_LED(BLUE_LED_PIN, 0)
             if button_key == 1: # Retrain training image 1
-                set_LED(GREEN_LED_PIN, 1)
-                set_LED(RED_LED_PIN, 1)
+                set_LED(GREEN_LED_PIN, 0)
+                set_LED(RED_LED_PIN, 0)
+                set_LED(BLUE_LED_PIN, 1)
                 capture = request_capture()
-                capture.save("training_1.png")
+                capture.save("/home/bnigg17/Documents/ECE395/Obelisk_RaspPI/training_1.png")
                 set_LED(GREEN_LED_PIN, 0)
                 set_LED(RED_LED_PIN, 1)
+                set_LED(BLUE_LED_PIN, 0)
             if button_key == 2: # Retrain training image 2
-                set_LED(GREEN_LED_PIN, 1)
-                set_LED(RED_LED_PIN, 1)
+                set_LED(GREEN_LED_PIN, 0)
+                set_LED(RED_LED_PIN, 0)
+                set_LED(BLUE_LED_PIN, 1)
                 capture = request_capture()
-                capture.save("training_2.png")
+                capture.save("/home/bnigg17/Documents/ECE395/Obelisk_RaspPI/training_2.png")
                 set_LED(GREEN_LED_PIN, 0)
                 set_LED(RED_LED_PIN, 1)
+                set_LED(BLUE_LED_PIN, 0)
         except KeyboardInterrupt:
             print('Keybboard Int')
             break

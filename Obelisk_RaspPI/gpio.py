@@ -7,6 +7,7 @@ BUTTON_PIN_2 = 23
 BUTTON_PIN_3 = 24
 GREEN_LED_PIN = 17
 RED_LED_PIN = 27
+BLUE_LED_PIN = 22
 
 
 def init_servo():
@@ -57,6 +58,7 @@ def init_LED():
     GPIO.setmode(GPIO.BCM)
     GPIO.setup(GREEN_LED_PIN, GPIO.OUT)
     GPIO.setup(RED_LED_PIN, GPIO.OUT)
+    GPIO.setup(BLUE_LED_PIN, GPIO.OUT)
     
 def set_LED(led_pin, en):
     if en:

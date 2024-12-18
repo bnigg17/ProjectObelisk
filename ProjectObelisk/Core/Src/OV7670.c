@@ -141,7 +141,6 @@ void OV7670_SetSaturation(uint8_t saturation)//0-100, default 80
 	}
 	OV7670_WriteSCCB(REG_MTX_SIGN, 0x9E);
 }
-
 void OV7670_SetFrameControl(uint16_t hstart, uint16_t hstop, uint16_t vstart, uint16_t vstop)
 {
 	OV7670_WriteSCCB(REG_HSTART, (hstart >> 3) & 0xff);

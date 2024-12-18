@@ -1,6 +1,6 @@
 Configuration	ProjectObelisk
 STM32CubeMX 	6.13.0
-Date	12/02/2024
+Date	12/16/2024
 MCU	STM32H7A3ZITxQ
 
 

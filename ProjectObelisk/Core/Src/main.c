@@ -22,7 +22,6 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "OV7670.h"
-#include "image_utils.h"
 #include <stdint.h>
 
 /* USER CODE END Includes */
@@ -34,7 +33,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+#define TEST 1
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -51,6 +50,8 @@ I2C_HandleTypeDef hi2c1;
 
 SPI_HandleTypeDef hspi1;
 
+TIM_HandleTypeDef htim4;
+
 UART_HandleTypeDef huart4;
 
 /* USER CODE BEGIN PV */
@@ -66,6 +67,7 @@ static void MX_DCMI_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_SPI1_Init(void);
 static void MX_UART4_Init(void);
+static void MX_TIM4_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -74,53 +76,25 @@ static void MX_UART4_Init(void);
 /* USER CODE BEGIN 0 */
 
 Camera_settings OV7670_settings={
-	QCIF, 		//Resolution
-	YUV422, 	//Format
-	NORMAL, 	//Effect
-	ON,			//AEC
-	ON, 		//AGC
-	ON, 		//AWB
-	OFF,		//Color bar
-	OFF,		//vertical flip
-	OFF,		//Horizontal flip
-	OFF,		//Night mode
-	OFF,		//ASC
-	ON,			//De-noise
-	ON,			//Banding filter
-	HISTOGRAM,	//AEC algorithm
-	QUARTER_FPS,//Min. fps in night mode
-	F_AUTO,		//Auto detect banding freq.
-	256, 		//Exposure - 2 bytes
-	4, 			//Gain	[0-7]=[1-128]
-	160,		//Brightness - byte
-	64, 		//Contrast - byte
-	80, 		//Saturation - byte
-	2,			//Sharpness	- [0-31]
-	0,			//De-noise strength - byte
-	x16, 		//Gain ceiling
-	77, 		//R channel gain - byte
-	103, 		//G channel gain - byte
-	153			//B channel gain - byte
+	QVGA, 		//Resolution
+	RGB565, 	//Format
 };
 
 // Local Constants ----------------------------------
-
-#define VGA 640*320
-#define QVGA VGA/2
-#define QQVGA VGA/4
-#define QQQVGA VGA/8
-#define CIF 352*288
-#define QCIF CIF/2
-#define QQCIF CIF/4
+#define QVGA 320 * 240
 
 // Global Variables ---------------------------------
-//uint32_t image_data[10];	// Two pixels per word
-//uint8_t formated_img[QCIF*3];	// Three bytes per pixel
+uint16_t image_data[QVGA];
+uint8_t formated_img[QVGA*3];	// Three bytes per pixel
 uint16_t width, height;
 uint8_t format;
 
-//static void format_image(uint8_t * p_img);
-//static void send_image(uint8_t *formatted_image, uint32_t image_size);
+static void format_image(uint8_t * p_img);
+static void setServoAngle(uint32_t angle);
+
+#if TEST
+static void send_image(uint8_t *formatted_image, uint32_t image_size);
+#endif
 
 /* USER CODE END 0 */
 
@@ -161,21 +135,22 @@ int main(void)
   MX_I2C1_Init();
   MX_SPI1_Init();
   MX_UART4_Init();
+  MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
-//  OV7670_Power(DISABLE);
-//  OV7670_Init(&hdcmi, &hdma_dcmi, &hi2c1);
-//
-//  OV7670_PowerUp();
-//  OV7670_UpdateSettings(OV7670_settings);
-//  OV7670_SetFrameRate(XCLK_DIV(1), PLL_x4);
-//  HAL_Delay(10);
-//
-//  //OV7670_Start(CONTINUOUS, image_data);
-//  OV7670_getImageInfo(&width,&height,&format);
-//  HAL_Delay(100);
+  OV7670_Power(DISABLE);
+  OV7670_Init(&hdcmi, &hdma_dcmi, &hi2c1);
 
-//  uint8_t rxBuff[2];
-//  uint8_t txBuff[16];
+  OV7670_Power(ENABLE);
+  OV7670_SetFrameControl(168,24,12,492);
+  HAL_Delay(10);
+
+  OV7670_Start(CONTINUOUS, image_data);			// Continous Mode fixed DMA transfer issue, can be used like snapshot
+  OV7670_getImageInfo(&width,&height,&format);
+  HAL_Delay(100);
+  HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_1);
+
+  // #TODO: Set GPIOS for LED start state
+  // #TODO: Convert ProjectObelisk_RaspPI_Arduino/CameraAI.py into C code
 
   /* USER CODE END 2 */
 
@@ -183,20 +158,16 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-//	rxBuff[0] = 0xFF;	//Set to invalid number
-//	(void)HAL_UART_Receive(&huart4, rxBuff, sizeof(rxBuff), HAL_MAX_DELAY);
-//	if(rxBuff[0] == 0x00 || rxBuff[0] == 0x01)
-//	{
-//		while(!frame_ready);
-//		format_image(formated_img);
-//		send_image(formated_img, width*height*3);
-//		frame_ready = 0;
-//	}
-//	else
-//	{
-//		snprintf((char *)txBuff, sizeof(txBuff), "S Fail\n");
-//	    (void)HAL_UART_Transmit(&huart4, txBuff, sizeof(txBuff), HAL_MAX_DELAY);
-//	}
+	  // #TODO: Implement Control loop - Reference ProjectObelisk_RaspPI_Arduino/control_loop.py for intended behavior]
+	  setServoAngle(0);
+	  while(!frame_ready)
+	  {}
+	  format_image(formated_img);
+#if TEST
+	  send_image(formated_img, QVGA*3);
+#endif
+	  // #TODO: Implement decider result - Reference ProjectObelisk_RaspPI_Arduino/control_loop.py for intended behavior
+	  setServoAngle(180);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -402,6 +373,65 @@ static void MX_SPI1_Init(void)
 }
 
 /**
+  * @brief TIM4 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM4_Init(void)
+{
+
+  /* USER CODE BEGIN TIM4_Init 0 */
+
+  /* USER CODE END TIM4_Init 0 */
+
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+  TIM_OC_InitTypeDef sConfigOC = {0};
+
+  /* USER CODE BEGIN TIM4_Init 1 */
+
+  /* USER CODE END TIM4_Init 1 */
+  htim4.Instance = TIM4;
+  htim4.Init.Prescaler = 168-1;
+  htim4.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim4.Init.Period = 20-1;
+  htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim4.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim4) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim4, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_TIM_PWM_Init(&htim4) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim4, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sConfigOC.OCMode = TIM_OCMODE_PWM1;
+  sConfigOC.Pulse = 0;
+  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+  if (HAL_TIM_PWM_ConfigChannel(&htim4, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM4_Init 2 */
+
+  /* USER CODE END TIM4_Init 2 */
+  HAL_TIM_MspPostInit(&htim4);
+
+}
+
+/**
   * @brief UART4 Initialization Function
   * @param None
   * @retval None
@@ -480,12 +510,15 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOE_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
-  __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
+  __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOG_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOE, CAMERA_PWDN_Pin|CAMERA_RESET_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOD, BLUE_LED_Pin|GREEN_LED_Pin|RED_LED_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pins : CAMERA_PWDN_Pin CAMERA_RESET_Pin */
   GPIO_InitStruct.Pin = CAMERA_PWDN_Pin|CAMERA_RESET_Pin;
@@ -493,6 +526,19 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : BLUE_LED_Pin GREEN_LED_Pin RED_LED_Pin */
+  GPIO_InitStruct.Pin = BLUE_LED_Pin|GREEN_LED_Pin|RED_LED_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : DECIDER_BUTTON_Pin TRAIN_IMG1_BUTTON_Pin TRAIN_IMG2_BUTTON_Pin */
+  GPIO_InitStruct.Pin = DECIDER_BUTTON_Pin|TRAIN_IMG1_BUTTON_Pin|TRAIN_IMG2_BUTTON_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
   /*Configure GPIO pin : PA8 */
   GPIO_InitStruct.Pin = GPIO_PIN_8;
@@ -507,82 +553,79 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-//void format_image(uint8_t * p_img){
-//	uint8_t * buff = p_img;
-//	uint32_t word = 0;
-//	uint32_t length = 0;
-//	//uint32_t num_bytes = width * height;
-//	for (uint16_t i = 0; i < width/2; i++) {
-//		for(uint16_t j = 0; j < height; j++){
-//			word = image_data[j+i*(width/2)];
-//			if(format == YUV422){
-//				uint16_t Y2 =(word>>24)&0x00FF;
-//				uint16_t U  =((word>>16)&0x00FF)-128;
-//				uint16_t Y1 =(word>>8)&0x00FF;
-//				uint16_t V  =(word&0x00FF)-128;
-//				// Convert to RBG888
-//				uint32_t rgb = YUVtoRGB888(Y1, U, V);
-//				buff[length++] = (uint8_t)(rgb>>24 & 0x00FF);
-//				buff[length++] = (uint8_t)(rgb>>16 & 0x00FF);
-//				buff[length++] = (uint8_t)(rgb>>8 & 0x00FF);
-//				rgb = YUVtoRGB888(Y2, U, V);
-//				buff[length++] = (uint8_t)(rgb>>24 & 0x00FF);
-//				buff[length++] = (uint8_t)(rgb>>16 & 0x00FF);
-//				buff[length++] = (uint8_t)(rgb>>8 & 0x00FF);
-//			}
-//			else{	// RGB565
-//		    	uint8_t R = (uint8_t)(((word>>16) & 0xF800) >> 11);   	// 5 bits
-//				uint8_t G = (uint8_t)(((word>>16) & 0x07E0) >> 5);    	// 6 bits
-//				uint8_t B = (uint8_t)((word>>16) & 0x001F);           	// 5 bits
-//				buff[length++] = R;
-//				buff[length++] = G;
-//				buff[length++] = B;
-//
-//		    	R = (uint8_t)((word & 0xF800) >> 11);   				// 5 bits
-//				G = (uint8_t)((word & 0x07E0) >> 5);    				// 6 bits
-//				B = (uint8_t)(word & 0x001F);           				// 5 bits
-//				buff[length++] = R;
-//				buff[length++] = G;
-//				buff[length++] = B;
-//
-//			}
-//		}
-//	}
-//}
-//
-//#define CHUNK_SIZE 240  // Max chunk size (must be a multiple of 3 for RGB)
-//
-//void send_image(uint8_t *formatted_image, uint32_t image_size) {
-//    uint32_t bytes_sent = 0;
-//    uint8_t rxBuff[1];
-//
-//    while (bytes_sent < image_size) {
-//        uint32_t bytes_to_send = image_size - bytes_sent;
-//
-//        // Ensure chunk does not exceed CHUNK_SIZE
-//        if (bytes_to_send > CHUNK_SIZE) {
-//            bytes_to_send = CHUNK_SIZE;
-//        }
-//
-//        // Send the current chunk over UART
-//        HAL_StatusTypeDef status = HAL_UART_Transmit(&huart4, &formatted_image[bytes_sent], bytes_to_send, HAL_MAX_DELAY);
-//
-//        // Handle transmission errors
-//        if (status != HAL_OK) {
-//            // Handle error (e.g., retry, log, or return)
-//            return;
-//        }
-//        //TODO: Add handshaking with python
-//        HAL_StatusTypeDef ret = HAL_UART_Receive(&huart4, rxBuff, sizeof(rxBuff), HAL_MAX_DELAY);
-//        if (ret != HAL_OK || rxBuff[0] != 0x0) {
-//            // Handle error (e.g., retry, log, or return)
-//            return;
-//        }
-//
-//        // Increment the sent byte counter
-//        bytes_sent += bytes_to_send;
-//    }
-//}
+
+// Function to format the image data for RGB565 format and populate the output buffer
+void format_image(uint8_t * p_img) {
+    uint32_t word = 0;         // Temporary variable to store a 32-bit word from image data
+    uint32_t length = 0;       // Counter to track the position in the output buffer
+
+    // Loop through each pixel pair (two pixels per 32-bit word)
+    for (uint16_t i = 0; i < width / 2; i++) {
+        for (uint16_t j = 0; j < height; j++) {
+            word = image_data[j + i * (width / 2)]; // Access the image data for the current pixel pair
+
+            if (format == RGB565) { // Check if the format is RGB565
+                // Extract the red component (5 bits from the upper 16 bits)
+                uint8_t R = (uint8_t)(((word >> 16) & 0xF800) >> 11);
+                // Extract the green component (6 bits from the upper 16 bits)
+                uint8_t G = (uint8_t)(((word >> 16) & 0x07E0) >> 5);
+                // Extract the blue component (5 bits from the upper 16 bits)
+                uint8_t B = (uint8_t)((word >> 16) & 0x001F);
+
+                // Store the RGB components in the output buffer sequentially
+                p_img[length++] = R;
+                p_img[length++] = G;
+                p_img[length++] = B;
+            }
+        }
+    }
+}
+
+// Function to set the servo angle based on a specified value (0-180 degrees)
+void setServoAngle(uint32_t angle) {
+    if (angle > 180) angle = 180; // Limit the angle to the maximum value of 180 degrees
+
+    int32_t minPulseWidth = 1000; // Minimum pulse width (1ms) for 0 degrees
+    int32_t maxPulseWidth = 2000; // Maximum pulse width (2ms) for 180 degrees
+
+    // Calculate the pulse width corresponding to the specified angle
+    uint32_t pulse = (uint32_t)((angle * (maxPulseWidth - minPulseWidth)) / 180) + minPulseWidth;
+
+    // Set the pulse width for the timer's PWM channel to control the servo
+    TIM2->CCR2 = pulse;
+}
+
+#if TEST
+#define CHUNK_SIZE 240  // Maximum size of each data chunk to be sent (must be a multiple of 3 for RGB format)
+
+// Function to send a formatted image over UART in chunks. Note uint16_t is max size, and our image is bigger
+void send_image(uint8_t *formatted_image, uint32_t image_size) {
+    uint32_t bytes_sent = 0;    // Counter to track the number of bytes sent
+
+    // Continue until all bytes in the image are sent
+    while (bytes_sent < image_size) {
+        uint32_t bytes_to_send = image_size - bytes_sent;
+
+        // Ensure the size of the current chunk does not exceed the defined maximum chunk size
+        if (bytes_to_send > CHUNK_SIZE) {
+            bytes_to_send = CHUNK_SIZE;
+        }
+
+        // Transmit the current chunk over UART
+        HAL_StatusTypeDef status = HAL_UART_Transmit(&huart4, &formatted_image[bytes_sent], bytes_to_send, HAL_MAX_DELAY);
+
+        // Handle any transmission errors
+        if (status != HAL_OK) {
+            // Log or handle transmission error
+            return;
+        }
+
+        // Update the byte counter after successfully transmitting the chunk
+        bytes_sent += bytes_to_send;
+    }
+}
+#endif
+
 
 /* USER CODE END 4 */
 

@@ -49,6 +49,8 @@ extern "C" {
 
 /* USER CODE END EM */
 
+void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
+
 /* Exported functions prototypes ---------------------------------------------*/
 void Error_Handler(void);
 
@@ -61,6 +63,20 @@ void Error_Handler(void);
 #define CAMERA_PWDN_GPIO_Port GPIOE
 #define CAMERA_RESET_Pin GPIO_PIN_12
 #define CAMERA_RESET_GPIO_Port GPIOE
+#define BLUE_LED_Pin GPIO_PIN_8
+#define BLUE_LED_GPIO_Port GPIOD
+#define DECIDER_BUTTON_Pin GPIO_PIN_9
+#define DECIDER_BUTTON_GPIO_Port GPIOD
+#define TRAIN_IMG1_BUTTON_Pin GPIO_PIN_10
+#define TRAIN_IMG1_BUTTON_GPIO_Port GPIOD
+#define TRAIN_IMG2_BUTTON_Pin GPIO_PIN_11
+#define TRAIN_IMG2_BUTTON_GPIO_Port GPIOD
+#define SERVO_PWM_Pin GPIO_PIN_12
+#define SERVO_PWM_GPIO_Port GPIOD
+#define GREEN_LED_Pin GPIO_PIN_6
+#define GREEN_LED_GPIO_Port GPIOD
+#define RED_LED_Pin GPIO_PIN_7
+#define RED_LED_GPIO_Port GPIOD
 
 /* USER CODE BEGIN Private defines */
 

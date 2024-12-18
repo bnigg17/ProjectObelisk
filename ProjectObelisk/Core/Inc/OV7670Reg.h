@@ -1,11 +1,8 @@
 /*
  * OV7670Reg.h
- *
- *  Created in: 2022
- *     Author: J. Bajic
- *
- *  Modified on: Dec 2, 2024
- *      Modified: bnigg2
+ *  Modified on: Nov 2, 2024
+ *      Modifier: bnigg2
+ *      Use: Save time define register values
  *
  */
 
@@ -115,104 +112,37 @@
 /*--------------------END OF OV7670 REGISTER ADDRESSES--------------------*/
 
 /*--------------------OV7670 RESOLUTION CONFIGs---------------------------*/
-
-//According to OV7670/7171 implementation guide v1.0 - Table 2-2 (NOT TESTED)
-const uint8_t RES_VGA[][2]={
-	//{REG_COM7, 0x00},
-	{REG_COM3, 0x00},  					// DCW enable
-	{REG_COM14, 0x00},
-	{REG_SCALING_XSC, 0x3A},  			// scaling_xsc
-	{REG_SCALING_YSC, 0x35},  			// scaling_ysc
-	{REG_SCALING_DCWCTR, 0x11},
-	{REG_SCALING_PCLK_DIV, 0xF0},
-	{REG_SCALING_PCLK_DELAY,0x02},
-	{0xFF, 0xFF},
-};
-//According to OV7670/7171 implementation guide v1.0 - Table 2-2
-const uint8_t RES_QVGA[][2]={
-	//{REG_COM7, 0x00},
+const uint8_t QVGA_RGB565_regs[][2]={
+	//According to OV7670/7171 implementation guide v1.0 - Table 2-2
+	//QVGA Specific
 	{REG_COM3, 0x04},  					// DCW enable
-	{REG_COM14, 0x19},
-	{REG_SCALING_XSC, 0x3A},  			// scaling_xsc
-	{REG_SCALING_YSC, 0x35},  			// scaling_ysc
-	{REG_SCALING_DCWCTR, 0x11},
+	{REG_COM14, 0x19},					// Manual scaling
+	{REG_SCALING_XSC, 0x3A},  			// Scaling_xsc
+	{REG_SCALING_YSC, 0x35},  			// Scaling_ysc
+	{REG_SCALING_DCWCTR, 0x11},			// Downsampling control
 	{REG_SCALING_PCLK_DIV, 0xF1},
 	{REG_SCALING_PCLK_DELAY,0x02},
-	{0xFF, 0xFF},
-};
-//According to OV7670/7171 implementation guide v1.0 - Table 2-2
-const uint8_t RES_QQVGA[][2]={
-	//{REG_COM7, 0x00},
-	{REG_COM3, 0x04},  					// DCW enable
-	{REG_COM14, 0x1A},					// divide by 4
-	{REG_SCALING_XSC, 0x3A},  			// scaling_xsc
-	{REG_SCALING_YSC, 0x35},  			// scaling_ysc
-	{REG_SCALING_DCWCTR, 0x22},			// downsample by 4
-	{REG_SCALING_PCLK_DIV, 0xF2},		// divide by 4
-	{REG_SCALING_PCLK_DELAY,0x02},
-	{0xFF, 0xFF},
-};
-const uint8_t RES_QQQVGA[][2]={
-	//{REG_COM7, 0x00},
-	{REG_COM3, 0x04},  					// DCW enable
-	{REG_COM14, 0x1B},					// divide by 4
-	{REG_SCALING_XSC, 0x3A},  			// scaling_xsc
-	{REG_SCALING_YSC, 0x35},  			// scaling_ysc
-	{REG_SCALING_DCWCTR, 0x33},			// downsample by 4
-	{REG_SCALING_PCLK_DIV, 0xF3},		// divide by 4
-	{REG_SCALING_PCLK_DELAY,0x02},
-	{0xFF, 0xFF},
-};
-//According to OV7670/7171 implementation guide v1.0 - Table 2-2
-const uint8_t RES_CIF[][2]={
-	//{REG_COM7, 0x00},
-	{REG_COM3, 0x08 },
-	{REG_COM14, 0x11},
-	{REG_SCALING_XSC, 0x3A},  			// scaling_xsc
-	{REG_SCALING_YSC, 0x35},  			// scaling_ysc
-	{REG_SCALING_DCWCTR, 0x11},
-	{REG_SCALING_PCLK_DIV, 0xF1},
-	{REG_SCALING_PCLK_DELAY,0x02},
-	{0xFF, 0xFF},
-};
-//According to OV7670/7171 implementation guide v1.0 - Table 2-2
-const uint8_t RES_QCIF[][2]={
-	//{REG_COM7, 0x00},
-	{REG_COM3, 0x0C},
-	{REG_COM14, 0x11},
-	{REG_SCALING_XSC, 0x3A},
-	{REG_SCALING_YSC, 0x35},
-	{REG_SCALING_DCWCTR, 0x11},
-	{REG_SCALING_PCLK_DIV, 0xF1},
-	{REG_SCALING_PCLK_DELAY,0x52},
-	{0xFF, 0xFF},
-};
-//According to OV7670/7171 implementation guide v1.0 - Table 2-2
-const uint8_t RES_QQCIF[][2]={
-	//{REG_COM7, 0x00},
-	{REG_COM3, 0x0C},
-	{REG_COM14, 0x12},
-	{REG_SCALING_XSC, 0x3A},
-	{REG_SCALING_YSC, 0x35},
-	{REG_SCALING_DCWCTR, 0x22},
-	{REG_SCALING_PCLK_DIV, 0xF2},
-	{REG_SCALING_PCLK_DELAY,0x2A},
-	{0xFF, 0xFF},
+	//Derived from OV7670/7171 implementation guide v1.0 - Table 8-2
+	//RGB565 Specific and Color Calibration
+	{REG_COM7, 0x04},					// Camera control register, enables DCW (digital chroma width) processing.
+	{REG_RGB444, 0x00},					// Disable RGB444 settings
+	{REG_COM1, 0x00},					// Camera control register, disables CCIR656 format setting
+	{REG_COM15, 0xD0},					// Control for output format and compression, sets RGB output.
+	{REG_COM9, 0x6A},					// Automatic gain control (AGC) settings, 128x Gain Ceiling
+	{REG_COM13, 0x40},					// Control for gamma correction, set saturation
+	{REG_MTX1, 0xB3},
+	{REG_MTX2, 0xB3},
+	{REG_MTX3, 0x00},
+	{REG_MTX4, 0x3D},
+	{REG_MTX5, 0xA7},
+	{REG_MTX6, 0xE4},
+	//Derived from OV7670/7171 implementation guide v1.0 - Table 3-2
+	// Frame Rate Control
+	{REG_DBLV, 0x7A},					// x4 multiplier on mclk
+	{REG_CLKRC, 0x01},					// /4 divisor on mclk
+	{0xFF, 0xFF}						// End
 };
 
-//Default settings - set on reset
-const uint8_t defaults[][2]={
-	{REG_COM8, 0xE7},				// Fast AGC/AEC, AGC=1, AWB=1, AEC=1
-	{REG_AWBCTR0, 0x9F},			// White balance
-	{0xB0, 0x84}, 					// important for color
-	{REG_AEW, 0x45},				// Average Based AEC - upper limit (default=0x75 - to high) (Table 3-7)
-	{REG_AEB, 0x33},				// Average Based AEC - lower limit (default=0x63 - to high) (Table 3-7)
-	{REG_HAECC1, 0xC0},				// HRL (default=0xC0)
-	{REG_HAECC2, 0x90},				// LRL (default=0x90) to avoid flickering (1.07*LRL)<=LPH (Table 3-9)
-	{REG_HAECC3, 0xCD},				// LPH (default=0xF0)!!!
-	{REG_HAECC4, 0xC1},				// UPL (default=0xC1) to avoid flickering (1.07*UPL)>=LPH (Table 3-9)
-	{0xFF, 0xFF},
-};
 
 /*------------------END OF OV7670 RESOLUTION CONFIGs-----------------------*/
 #endif /* OV7670_REG_H_ */

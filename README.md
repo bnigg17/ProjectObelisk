@@ -1,15 +1,13 @@
-# ECE395
-## Parts and Documentation
-ARM M7 Cortex Processor: STM32H7A3ZIT6Q (https://www.st.com/resource/en/datasheet/stm32h7a3ai.pdf)
+# Project Overview
+Project Obelisk aimed to recreate and enhance the traditional key tag unlocking systems widely used for business security. Our approach replaces the physical key tag with a "custom key" powered by image recognition via artificial intelligence. The "custom key" can be any object that can be uniquely recognized, such as the back of your phone, a rubber duck, or even an apple. The system allows users to dynamically train and store custom keys, which are then used to activate a connected device, such as a servo motor. In our prototype, this servo motor simulates a door lock mechanism, showcasing the concept's functionality.
 
-Camera: OV7670 (https://web.mit.edu/6.111/www/f2016/tools/OV7670_2006.pdf, https://www.electronicscomp.com/datasheet/ov7670-sensor-datasheet.pdf)
+![Demo](https://github.com/user-attachments/assets/e05cc01c-2aee-4061-800d-37bee5872383)
 
-## Helpful Links
-Connecting USB to WSL (https://learn.microsoft.com/en-us/windows/wsl/connect-usb)
+# About this Project
+This project was developed over the course of 10 weeks for the Advanced Digital Systems Lab (ECE395) at UIUC. It involved the creation of a hardware-based system, where my partner and I individually or collaboratively explored the complexities of embedded systems, hardware design, and artificial intelligence. Our journey was marked by numerous challenges that required extensive research, documentation reading, and hands-on troubleshooting, pushing our knowledge and skills in electrical and embedded systems design to new limits.
 
-How HAL DCMI Works (https://www.st.com/resource/en/product_training/STM32F7_Peripheral_DCMI.pdf)
+# Project Obelisk
+Project Obelisk is the main undertaking, designed as an all-in-one solution that integrates image processing, AI for object recognition, and a control loop to manage the servo motor and LED indicators. This system seamlessly ties together hardware and software components, allowing for dynamic key recognition and an output signal to trigger external devices.
 
-Use this command to find out what linux serial port the UART device is connected to.
-```bash
-dmesg | grep tty
-```
+# Project Obelisk Arduino / Raspberry Pi
+The Arduino/Raspberry Pi subproject was designed as a testing environment for simpler systems and to verify our concept before moving to low-level C implementation. This step involved experimenting with synchronization signals, image array padding, and baud rate requirements for camera debugging. Using the Arduino/Raspberry Pi setup allowed us to handle some of the image processing off the primary microcontroller, providing valuable insights into data flow, timing, and system behavior.
